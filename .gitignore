@@ -1,0 +1,13 @@
+.idea
+target
+.classpath
+.project
+.settings
+.cache*
+**/bin
+**/.tmpBin
+local.*
+quill_test.db
+Bug.scala
+*.gz
+
