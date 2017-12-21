@@ -4,10 +4,11 @@ target
 .project
 .settings
 .cache*
+**/*.log
 **/bin
 **/.tmpBin
 local.*
 quill_test.db
 Bug.scala
 *.gz
-
+**/jmh-result.csv
