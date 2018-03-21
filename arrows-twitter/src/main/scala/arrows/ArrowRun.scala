@@ -6,6 +6,9 @@ import com.twitter.util.Future
 import com.twitter.util.Return
 import com.twitter.util.Throw
 import com.twitter.util.Try
+import java.util.concurrent.ConcurrentHashMap
+import java.util.Collections
+import java.util.concurrent.ConcurrentLinkedQueue
 
 private[arrows] final object ArrowRun {
 
@@ -72,11 +75,32 @@ private[arrows] final object ArrowRun {
       a.runCont(this, depth)
   }
 
+  //  object stackCache extends ThreadLocal[Array[Transform[Any, Any, Any]]] {
+  //    override def get() = {
+  //      val a = super.get
+  //      if (a == null) {
+  //        println(1)
+  //        new Array[Transform[Any, Any, Any]](10000)
+  //      } else {
+  //        set(null)
+  //        a
+  //      }
+  //    }
+  //  }
+
+  val stackCache = new ConcurrentLinkedQueue[Array[Transform[Any, Any, Any]]]
+
   final class Async[T](
     private[this] var fut: Future[T]
   )
     extends Result[T] with (Try[T] => Future[T]) {
-    private var stack = new Array[Transform[Any, Any, Any]](10)
+    private final val stack = {
+      val a = stackCache.poll()
+      if (a == null)
+        new Array[Transform[Any, Any, Any]](10000)
+      else
+        a
+    }
     private var pos = 0
 
     final def future = fut
@@ -97,6 +121,7 @@ private[arrows] final object ArrowRun {
         res = res.cont(stack(i), 0)
         i += 1
       }
+      stackCache.offer(stack)
       res.toFuture.asInstanceOf[Future[T]]
     }
 
@@ -105,19 +130,15 @@ private[arrows] final object ArrowRun {
       this
     }
 
-    override final def cont[B >: T, U](a: Transform[_, B, U], depth: Int) = {
+    override final def cont[B >: T, U](a: Transform[_, B, U], depth: Int) =
       a match {
         case a: TransformFuture[_, _, _] =>
           Async(null, a.future(toFuture))
         case a =>
-          val length = stack.length
-          if (pos == length)
-            stack = Arrays.copyOf(stack, length + (length / 2))
           stack(pos) = a.asInstanceOf[Transform[Any, Any, Any]]
           pos += 1
           this.as[U]
       }
-    }
   }
 
   final object Async {
