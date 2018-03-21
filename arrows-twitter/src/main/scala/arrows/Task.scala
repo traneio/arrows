@@ -32,10 +32,7 @@ final object Task {
     exception(new NotImplementedError("an implementation is missing"))
 
   final def fromFuture[T](f: => Future[T]): Task[T] =
-    new TransformFuture[Unit, Unit, T] {
-      override final def a = Identity
-      override final def future(fut: Future[Unit]) = f
-    }
+    new FromFuture(f)
 
   final def const[T](result: Try[T]): Task[T] =
     result match {

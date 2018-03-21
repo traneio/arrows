@@ -135,8 +135,10 @@ class AsyncSuccessOnlyBenchmarks extends Benchmarks {
 
 //object Test extends App {
 //  val b = new AsyncSuccessOnlyBenchmarks
-//  for(_ <- (0 until 100000)) b.arrowsTask
-//  b.arrowsTask
+//  val e = b.arrowsTask
+//  for(_ <- (0 until 1000000).par) println(b.arrowsTask)
+//  println(b.arrowsTask)
+//  println(b.traneIOFuture)
 //  b.tearDown()
 //}
 

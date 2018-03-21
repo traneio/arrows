@@ -38,6 +38,10 @@ private[arrows] final object ArrowAst {
     override final def runSync[B <: Any](r: Sync[B], depth: Int): Result[T] =
       r.failure(ex)
   }
+  final class FromFuture[T](fut: => Future[T]) extends Point[T] {
+    override final def runSync[B <: Any](r: Sync[B], depth: Int): Result[T] =
+      Async(r, fut)
+  }
   final case class Apply[T, U](v: T, arrow: Arrow[T, U]) extends Point[U] {
     override final def runSync[B <: Any](r: Sync[B], depth: Int): Result[U] =
       arrow.runSync(r.success(v), depth)
