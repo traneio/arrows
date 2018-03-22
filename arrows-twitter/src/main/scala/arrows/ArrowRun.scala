@@ -6,9 +6,6 @@ import com.twitter.util.Future
 import com.twitter.util.Return
 import com.twitter.util.Throw
 import com.twitter.util.Try
-import java.util.concurrent.ConcurrentHashMap
-import java.util.Collections
-import java.util.concurrent.ConcurrentLinkedQueue
 
 private[arrows] final object ArrowRun {
 
@@ -75,42 +72,26 @@ private[arrows] final object ArrowRun {
       a.runCont(this, depth)
   }
 
-  //  object stackCache extends ThreadLocal[Array[Transform[Any, Any, Any]]] {
-  //    override def get() = {
-  //      val a = super.get
-  //      if (a == null) {
-  //        println(1)
-  //        new Array[Transform[Any, Any, Any]](10000)
-  //      } else {
-  //        set(null)
-  //        a
-  //      }
-  //    }
-  //  }
-
-  val stackCache = new ConcurrentLinkedQueue[Array[Transform[Any, Any, Any]]]
+  private final val asyncArrayCache = new ArrayCache[Transform[Any, Any, Any]](8192)
 
   final class Async[T](
     private[this] var fut: Future[T]
   )
     extends Result[T] with (Try[T] => Future[T]) {
-    private final val stack = {
-      val a = stackCache.poll()
-      if (a == null)
-        new Array[Transform[Any, Any, Any]](10000)
-      else
-        a
-    }
+    private final val stack = asyncArrayCache.acquire
     private var pos = 0
 
     final def future = fut
 
     override final def toFuture = {
-      simplify
-      fut
+      val r = simplify
+      if (r eq this)
+        fut
+      else
+        r.toFuture
     }
 
-    override final def apply(t: Try[T]) = {
+    private[this] final def runCont(t: Try[T]) = {
       var res: Result[_] =
         t match {
           case t: Throw[_]  => new Sync(false, t.throwable)
@@ -121,14 +102,20 @@ private[arrows] final object ArrowRun {
         res = res.cont(stack(i), 0)
         i += 1
       }
-      stackCache.offer(stack)
-      res.toFuture.asInstanceOf[Future[T]]
+      asyncArrayCache.release(stack)
+      res.as[T]
     }
 
-    override final def simplify = {
-      fut = fut.transform(this)
-      this
-    }
+    override final def apply(t: Try[T]) =
+      runCont(t).toFuture
+
+    override final def simplify =
+      fut.poll match {
+        case r: Some[_] => runCont(r.get)
+        case _ =>
+          fut = fut.transform(this)
+          this
+      }
 
     override final def cont[B >: T, U](a: Transform[_, B, U], depth: Int) =
       a match {
