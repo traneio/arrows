@@ -72,16 +72,15 @@ private[arrows] final object ArrowRun {
       a.runCont(this, depth)
   }
 
-  private final val asyncArrayCache = new ArrayCache[Transform[Any, Any, Any]](8192)
+  private[this] final val asyncArrayCache = new ArrayCache[Transform[Any, Any, Any]](8192)
 
   final class Async[T](
     private[this] var fut: Future[T]
   )
     extends Result[T] with (Try[T] => Future[T]) {
-    private final val stack = asyncArrayCache.acquire
-    private var pos = 0
 
-    final def future = fut
+    private[this] final val stack = asyncArrayCache.acquire
+    private[this] var pos = 0
 
     override final def toFuture = {
       val r = simplify
@@ -111,21 +110,18 @@ private[arrows] final object ArrowRun {
 
     override final def simplify =
       fut.poll match {
-        case r: Some[_] => runCont(r.get)
+        case r: Some[_] =>
+          runCont(r.get)
         case _ =>
           fut = fut.transform(this)
           this
       }
 
-    override final def cont[B >: T, U](a: Transform[_, B, U], depth: Int) =
-      a match {
-        case a: TransformFuture[_, _, _] =>
-          Async(null, a.future(toFuture))
-        case a =>
-          stack(pos) = a.asInstanceOf[Transform[Any, Any, Any]]
-          pos += 1
-          this.as[U]
-      }
+    override final def cont[B >: T, U](a: Transform[_, B, U], depth: Int) = {
+      stack(pos) = a.asInstanceOf[Transform[Any, Any, Any]]
+      pos += 1
+      this.as[U]
+    }
   }
 
   final object Async {
@@ -151,7 +147,7 @@ private[arrows] final object ArrowRun {
 
   final class Defer[T, U](r: Sync[T], a: Arrow[T, U]) extends Result[U] {
     private var stacks = Array(new Array[Transform[Any, Any, Any]](MaxDepth + 1))
-    private var pos = 0
+    private[this] var pos = 0
 
     override def toFuture =
       simplifyGraph.toFuture

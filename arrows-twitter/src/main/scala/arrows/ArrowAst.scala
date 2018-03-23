@@ -160,14 +160,19 @@ private[arrows] final object ArrowAst {
     def wrap(f: => Future[U]): Future[U]
   }
 
-  trait TransformFuture[T, U, V] extends Transform[T, U, V] {
+  trait TransformFuture[T, U, V] extends Arrow[T, V] {
     def a: Arrow[T, U]
-    override final def runCont(r: Sync[U], depth: Int): Result[V] =
-      try Async(r, future(r.toFuture)) // TODO Avoid allocating Future.Unit
-      catch {
-        case ex: Throwable =>
-          if (ScalaNonFatal(ex)) r.failure(ex)
-          else throw ex
+    def runSync[B <: T](r: Sync[B], depth: Int): Result[V] =
+      if (depth > MaxDepth)
+        new Defer(r, this)
+      else {
+        val u = a.runSync(r, depth + 1)
+        try Async(u, future(u.toFuture)) // TODO Avoid allocating Future.Unit
+        catch {
+          case ex: Throwable =>
+            if (ScalaNonFatal(ex)) r.failure(ex)
+            else throw ex
+        }
       }
     def future(f: Future[U]): Future[V]
   }
