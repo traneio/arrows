@@ -72,14 +72,13 @@ private[arrows] final object ArrowRun {
       a.runCont(this, depth)
   }
 
-  private[this] final val asyncArrayCache = new ArrayCache[Transform[Any, Any, Any]](8192)
 
   final class Async[T](
     private[this] var fut: Future[T]
   )
     extends Result[T] with (Try[T] => Future[T]) {
 
-    private[this] final val stack = asyncArrayCache.acquire
+    private[this] var stack = new Array[Transform[Any, Any, Any]](10)
     private[this] var pos = 0
 
     override final def toFuture = {
@@ -101,7 +100,6 @@ private[arrows] final object ArrowRun {
         res = res.cont(stack(i), 0)
         i += 1
       }
-      asyncArrayCache.release(stack)
       res.as[T]
     }
 
@@ -118,6 +116,8 @@ private[arrows] final object ArrowRun {
       }
 
     override final def cont[B >: T, U](a: Transform[_, B, U], depth: Int) = {
+      if (pos == stack.length)
+        stack = Arrays.copyOf(stack, pos + pos / 2)
       stack(pos) = a.asInstanceOf[Transform[Any, Any, Any]]
       pos += 1
       this.as[U]
