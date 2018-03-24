@@ -1,4 +1,4 @@
-package arrows
+package arrows.twitter
 
 import language.postfixOps
 import com.twitter.util._

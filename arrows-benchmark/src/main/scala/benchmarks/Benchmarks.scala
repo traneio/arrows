@@ -35,7 +35,7 @@ class SyncSuccessOnlyBenchmarks
       Gen.FlatMap -> 30
     )
   )
-  with Arrows
+  with ArrowsTwitter
   with CatsEffect
   with Monix
   with ScalaFuture
@@ -53,7 +53,7 @@ class SyncWithFailuresBenchmarks
       Gen.Handle -> 10
     )
   )
-  with Arrows
+  with ArrowsTwitter
   with CatsEffect
   with Monix
   with ScalaFuture
@@ -70,7 +70,7 @@ class AsyncSuccessOnlyBenchmarks
       Gen.FlatMap -> 30
     )
   )
-  with Arrows
+  with ArrowsTwitter
   with CatsEffect
   with Monix
   with ScalaFuture
@@ -89,7 +89,7 @@ class AsyncWithFailuresBenchmarks
       Gen.Handle -> 10
     )
   )
-  with Arrows
+  with ArrowsTwitter
   with CatsEffect
   with Monix
   with ScalaFuture

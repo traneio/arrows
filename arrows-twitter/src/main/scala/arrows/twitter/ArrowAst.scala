@@ -1,4 +1,4 @@
-package arrows
+package arrows.twitter
 
 import scala.util.control.{ NonFatal => ScalaNonFatal }
 

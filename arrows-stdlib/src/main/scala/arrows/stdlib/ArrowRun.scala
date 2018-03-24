@@ -1,11 +1,11 @@
-package arrows
+package arrows.stdlib
 
 import java.util.Arrays
-
-import com.twitter.util.Future
-import com.twitter.util.Return
-import com.twitter.util.Throw
-import com.twitter.util.Try
+import scala.util.Try
+import scala.concurrent.Future
+import scala.util.Failure
+import scala.util.Success
+import scala.concurrent.ExecutionContext
 
 private[arrows] final object ArrowRun {
 
@@ -31,9 +31,9 @@ private[arrows] final object ArrowRun {
 
   final class Sync[+T](
     private[this] var _success: Boolean,
-    private[this] var curr:     Any
-  )
-    extends Result[T] {
+    private[this] var curr: Any)
+    (implicit ec: ExecutionContext)
+      extends Result[T] {
 
     def success = _success
 
@@ -57,14 +57,14 @@ private[arrows] final object ArrowRun {
     final def exception = curr.asInstanceOf[Throwable]
 
     override final def toFuture =
-      if (_success) new ReturnFuture(value)
-      else new ThrowFuture(exception)
+      if (_success) Future.successful(value)
+      else Future.failed(exception)
 
     final def toTry: Try[T] =
       if (success)
-        Return(value)
+        Success(value)
       else
-        Throw(exception)
+        Failure(exception)
 
     override final def simplify = this
 
@@ -73,9 +73,9 @@ private[arrows] final object ArrowRun {
   }
 
   final class Async[T](
-    private[this] var fut: Future[T]
-  )
-    extends Result[T] with (Try[T] => Future[T]) {
+    private[this] var fut: Future[T])
+    (implicit ec: ExecutionContext)
+      extends Result[T] with (Try[T] => Future[T]) {
 
     private[this] var stack = new Array[Transform[Any, Any, Any]](10)
     private[this] var pos = 0
@@ -91,8 +91,8 @@ private[arrows] final object ArrowRun {
     private[this] final def runCont(t: Try[T]) = {
       var res: Result[_] =
         t match {
-          case t: Throw[_]  => new Sync(false, t.throwable)
-          case t: Return[_] => new Sync(true, t.r)
+          case t: Success[_] => new Sync(false, t.value)
+          case t: Failure[_] => new Sync(true, t.exception)
         }
       var i = 0
       while (i < pos) {
@@ -106,11 +106,11 @@ private[arrows] final object ArrowRun {
       runCont(t).toFuture
 
     override final def simplify =
-      fut.poll match {
+      fut.value match {
         case r: Some[_] =>
           runCont(r.get)
         case _ =>
-          fut = fut.transform(this)
+          fut = fut.transformWith(this)
           this
       }
 
@@ -124,19 +124,19 @@ private[arrows] final object ArrowRun {
   }
 
   final object Async {
-    final def apply[T](owner: Result[_], fut: Future[T]): Result[T] =
-      fut.poll match {
+    final def apply[T](owner: Result[_], fut: Future[T])(implicit ec: ExecutionContext): Result[T] =
+      fut.value match {
         case r: Some[_] =>
           owner match {
             case owner: Sync[_] =>
               r.get match {
-                case r: Throw[_]  => owner.failure(r.e)
-                case r: Return[_] => owner.success(r.r)
+                case r: Failure[_] => owner.failure(r.exception)
+                case r: Success[_] => owner.success(r.value)
               }
             case _ =>
               r.get match {
-                case r: Throw[_]  => new Sync(false, r.e)
-                case r: Return[_] => new Sync(true, r.r)
+                case r: Failure[_] => new Sync(false, r.exception)
+                case r: Success[_] => new Sync(true, r.value)
               }
           }
         case _ =>
@@ -144,7 +144,7 @@ private[arrows] final object ArrowRun {
       }
   }
 
-  final class Defer[T, U](r: Sync[T], a: Arrow[T, U]) extends Result[U] {
+  final class Defer[T, U](r: Sync[T], a: Arrow[T, U])(implicit ec: ExecutionContext) extends Result[U] {
     private var stacks = Array(new Array[Transform[Any, Any, Any]](MaxDepth + 1))
     private[this] var pos = 0
 
@@ -182,6 +182,6 @@ private[arrows] final object ArrowRun {
     }
   }
 
-  final def apply[T, U](value: T, a: Arrow[T, U]): Future[U] =
+  final def apply[T, U](value: T, a: Arrow[T, U])(implicit ec: ExecutionContext): Future[U] =
     a.runSync(new Sync(true, value), 0).toFuture
 }

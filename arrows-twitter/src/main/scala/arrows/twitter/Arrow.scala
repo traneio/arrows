@@ -1,17 +1,8 @@
-package arrows
+package arrows.twitter
 
-import com.twitter.util.Duration
-import com.twitter.util.Future
-import com.twitter.util.FuturePool
-import com.twitter.util.Local
-import com.twitter.util.Return
-import com.twitter.util.Throw
-import com.twitter.util.Time
-import com.twitter.util.TimeoutException
-import com.twitter.util.Timer
-import com.twitter.util.Try
-import arrows.ArrowRun.Sync
-import arrows.ArrowRun._
+import com.twitter.util._
+import ArrowRun.Sync
+import ArrowRun._
 
 abstract class Arrow[-T, +U] extends (T => Task[U]) {
 

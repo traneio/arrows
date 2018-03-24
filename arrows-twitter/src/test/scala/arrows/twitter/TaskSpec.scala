@@ -1,4 +1,4 @@
-package arrows
+package arrows.twitter
 
 import com.twitter.util.Duration
 import com.twitter.util.Await

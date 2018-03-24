@@ -2,18 +2,18 @@ package benchmarks
 
 import com.twitter.util.Promise
 
-import arrows.Arrow
-import arrows.Task
+import arrows.twitter.Arrow
+import arrows.twitter.Task
 import org.openjdk.jmh.annotations.Benchmark
 import org.openjdk.jmh.annotations.Benchmark
 import com.twitter.util.Await
 import scala.util.Try
 
-trait Arrows {
+trait ArrowsTwitter {
   this: Benchmarks =>
 
-  private[this] final val arrowGen = ArrowsArrowGen(dist)
-  private[this] final val taskGen = ArrowsTaskGen(dist)
+  private[this] final val arrowGen = ArrowsTwitterArrowGen(dist)
+  private[this] final val taskGen = ArrowsTwitterTaskGen(dist)
 
   @Benchmark
   def arrowsArrow = {
@@ -26,7 +26,7 @@ trait Arrows {
   }
 }
 
-object ArrowsTaskGen extends Gen[Int => Task[Int]] {
+object ArrowsTwitterTaskGen extends Gen[Int => Task[Int]] {
 
   def sync = Task.value _
 
@@ -51,7 +51,7 @@ object ArrowsTaskGen extends Gen[Int => Task[Int]] {
     t.andThen(_.handle { case _ => i })
 }
 
-object ArrowsArrowGen extends Gen[Arrow[Int, Int]] {
+object ArrowsTwitterArrowGen extends Gen[Arrow[Int, Int]] {
 
   def sync = Arrow[Int]
 

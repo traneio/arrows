@@ -1,4 +1,4 @@
-package arrows
+package arrows.twitter
 
 import com.twitter.util.Future
 import com.twitter.util.Try
