@@ -1,8 +1,30 @@
 package benchmarks
 
+import com.twitter.util.Promise
+
 import arrows.Arrow
 import arrows.Task
-import com.twitter.util.Promise
+import org.openjdk.jmh.annotations.Benchmark
+import org.openjdk.jmh.annotations.Benchmark
+import com.twitter.util.Await
+import scala.util.Try
+
+trait Arrows {
+  this: Benchmarks =>
+
+  private[this] final val arrowGen = ArrowsArrowGen(dist)
+  private[this] final val taskGen = ArrowsTaskGen(dist)
+
+  @Benchmark
+  def arrowsArrow = {
+    Try(Await.result(arrowGen.run(1)))
+  }
+
+  @Benchmark
+  def arrowsTask = {
+    Try(Await.result(taskGen(1).run))
+  }
+}
 
 object ArrowsTaskGen extends Gen[Int => Task[Int]] {
 

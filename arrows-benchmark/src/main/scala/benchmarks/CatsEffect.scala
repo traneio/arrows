@@ -1,8 +1,21 @@
 package benchmarks
 
 import cats.effect.IO
+import org.openjdk.jmh.annotations.Benchmark
+import scala.util.Try
 
-object CatsEffectIOGen extends Gen[Int => IO[Int]] {
+trait CatsEffect {
+  this: Benchmarks =>
+
+  private[this] final val gen = CatsEffectGen(dist)
+
+  @Benchmark
+  def catsEffectIO = {
+    Try(gen(1).unsafeRunSync())
+  }
+}
+
+object CatsEffectGen extends Gen[Int => IO[Int]] {
 
   def sync = IO.pure _
 

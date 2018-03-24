@@ -4,8 +4,23 @@ import java.util.function.Function
 
 import io.trane.future.Future
 import io.trane.future.Promise
+import org.openjdk.jmh.annotations.Benchmark
+import scala.util.Try
 
-object TraneIOFutureGen extends Gen[Function[Int, Future[Int]]] {
+trait TraneIO {
+  this: Benchmarks =>
+
+  private[this] final val gen = TraneIOGen(dist)
+  private[this] final val inf = java.time.Duration.ofMillis(Int.MaxValue)
+
+  @Benchmark
+  def traneIOFuture = {
+    Try(gen(1).get(inf))
+  }
+
+}
+
+object TraneIOGen extends Gen[Function[Int, Future[Int]]] {
 
   def sync = Future.value _
 

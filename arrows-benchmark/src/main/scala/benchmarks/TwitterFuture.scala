@@ -2,6 +2,20 @@ package benchmarks
 
 import com.twitter.util.Promise
 import com.twitter.util.Future
+import org.openjdk.jmh.annotations.Benchmark
+import scala.util.Try
+
+trait TwitterFuture {
+  this: Benchmarks =>
+
+  private[this] final val gen = TwitterFutureGen(dist)
+
+  @Benchmark
+  def twitterFuture = {
+    import com.twitter.util.Await
+    Try(Await.result(gen(1)))
+  }
+}
 
 object TwitterFutureGen extends Gen[Int => Future[Int]] {
 

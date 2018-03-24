@@ -3,6 +3,21 @@ package benchmarks
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.Promise
+import org.openjdk.jmh.annotations.Benchmark
+import scala.util.Try
+
+trait ScalaFuture {
+  this: Benchmarks =>
+
+  private[this] final val sFut = ScalaFutureGen(dist)
+
+  @Benchmark
+  def scalaFuture = {
+    import scala.concurrent._
+    import scala.concurrent.duration._
+    Try(Await.result(sFut(1), Duration.Inf))
+  }
+}
 
 object ScalaFutureGen extends Gen[Int => Future[Int]] {
 

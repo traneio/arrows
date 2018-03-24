@@ -2,8 +2,26 @@ package benchmarks
 
 import scalaz._
 import scalaz.effect.IO
+import org.openjdk.jmh.annotations.Benchmark
+import scala.util.Try
+import scalaz.effect.RTS
 
-object ScalazIOGen extends Gen[Int => IO[Int]] {
+trait Scalaz {
+  this: Benchmarks =>
+
+  private[this] final object rts extends RTS
+  private[this] final val gen = ScalazGen(dist)
+
+  @Benchmark
+  def scalazIO = {
+    Try(rts.unsafePerformIO(gen(1)))
+  }
+
+  override def tearDown() =
+    rts.threadPool.shutdown()
+}
+
+object ScalazGen extends Gen[Int => IO[Int]] {
 
   def sync = IO.now _
 

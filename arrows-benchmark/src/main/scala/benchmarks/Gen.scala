@@ -6,7 +6,8 @@ import java.util.concurrent.ExecutorService
 
 trait Gen[T] {
 
-  def apply(depth: Int, dist: List[(Gen.Op, Int)])(implicit s: ExecutorService): T = {
+  def apply(dist: List[(Gen.Op, Int)])(implicit s: ExecutorService): T = {
+    val depth = 100
     val rnd = new Random(1)
     import rnd._
 

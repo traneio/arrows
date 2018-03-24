@@ -2,8 +2,24 @@ package benchmarks
 
 import monix.eval.Task
 import monix.execution.Cancelable
+import org.openjdk.jmh.annotations.Benchmark
+import scala.util.Try
 
-object MonixTaskGen extends Gen[Int => Task[Int]] {
+trait Monix {
+  this: Benchmarks =>
+
+  private[this] final val gen = MonixGen(dist)
+
+  @Benchmark
+  def monixTask = {
+    import scala.concurrent._
+    import scala.concurrent.duration._
+    import monix.execution.Scheduler.Implicits.global
+    Try(Await.result(gen(1).runAsync, Duration.Inf))
+  }
+}
+
+object MonixGen extends Gen[Int => Task[Int]] {
 
   def sync = Task.now _
 
