@@ -203,7 +203,7 @@ private[arrows] final object ArrowAst {
   trait JoinTask[T, U, V, X] extends Transform[T, U, X] {
     override final def runCont(r: Sync[U], depth: Int): Result[X] =
       if (r.success) {
-        val f1 = ReturnFuture(r.value)
+        val f1 = new ReturnFuture(r.value)
         val f2 = p.runSync(r.unit, depth).toFuture
         Async(r, future(f1, f2))
       } else

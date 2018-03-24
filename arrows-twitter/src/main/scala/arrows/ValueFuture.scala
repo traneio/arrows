@@ -61,12 +61,12 @@ trait ValueFuture[T] extends Future[T] {
   }
 }
 
-case class ReturnFuture[T](r: T) extends ValueFuture[T] {
+class ReturnFuture[T](r: T) extends ValueFuture[T] {
   override def result(timeout: Duration)(implicit permit: Awaitable.CanAwait): T = r
   override final def toTry = Return(r)
 }
 
-case class ThrowFuture[T](ex: Throwable) extends ValueFuture[T] {
+class ThrowFuture[T](ex: Throwable) extends ValueFuture[T] {
   override def result(timeout: Duration)(implicit permit: Awaitable.CanAwait): T = throw ex
   override final def toTry = Throw(ex)
 }

@@ -57,8 +57,8 @@ private[arrows] final object ArrowRun {
     final def exception = curr.asInstanceOf[Throwable]
 
     override final def toFuture =
-      if (_success) ReturnFuture(value)
-      else ThrowFuture(exception)
+      if (_success) new ReturnFuture(value)
+      else new ThrowFuture(exception)
 
     final def toTry: Try[T] =
       if (success)
@@ -71,7 +71,7 @@ private[arrows] final object ArrowRun {
     override final def cont[B >: T, U](a: Transform[_, B, U], depth: Int) =
       a.runCont(this, depth)
   }
-  
+
   final class Async[T](
     private[this] var fut: Future[T]
   )
