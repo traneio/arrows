@@ -71,8 +71,7 @@ private[arrows] final object ArrowRun {
     override final def cont[B >: T, U](a: Transform[_, B, U], depth: Int) =
       a.runCont(this, depth)
   }
-
-
+  
   final class Async[T](
     private[this] var fut: Future[T]
   )

@@ -12,7 +12,7 @@ import java.util.concurrent.Executors
 @Fork(1)
 abstract class Benchmarks {
 
-  //  @Param(Array("10", "100", "1000"))
+//    @Param(Array("10", "100", "1000"))
   var depth: Int = 100
 
   def dist: List[(Gen.Op, Int)]

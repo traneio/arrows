@@ -155,7 +155,7 @@ private[arrows] final object ArrowAst {
 
   trait Wrap[T, U] extends Arrow[T, U] {
     override final def runSync[B <: T](r: Sync[B], depth: Int): Result[U] =
-      new Async(wrap(arrow.runSync(r, 0).toFuture))
+      Async(r, wrap(arrow.runSync(r, 0).toFuture))
     def arrow: Arrow[T, U]
     def wrap(f: => Future[U]): Future[U]
   }
@@ -192,7 +192,8 @@ private[arrows] final object ArrowAst {
     override final def runCont(r: Sync[U], depth: Int): Result[U] = {
       try resp(r.toTry)
       catch {
-        case ex: Throwable => Monitor.handle(ex)
+        case ex: Throwable =>
+          Monitor.handle(ex)
       }
       r
     }
