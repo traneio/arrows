@@ -31,9 +31,9 @@ private[arrows] final object ArrowRun {
 
   final class Sync[+T](
     private[this] var _success: Boolean,
-    private[this] var curr: Any)
-    (implicit ec: ExecutionContext)
-      extends Result[T] {
+    private[this] var curr:     Any
+  )(implicit ec: ExecutionContext)
+    extends Result[T] {
 
     def success = _success
 
@@ -73,9 +73,9 @@ private[arrows] final object ArrowRun {
   }
 
   final class Async[T](
-    private[this] var fut: Future[T])
-    (implicit ec: ExecutionContext)
-      extends Result[T] with (Try[T] => Future[T]) {
+    private[this] var fut: Future[T]
+  )(implicit ec: ExecutionContext)
+    extends Result[T] with (Try[T] => Future[T]) {
 
     private[this] var stack = new Array[Transform[Any, Any, Any]](10)
     private[this] var pos = 0
@@ -91,8 +91,8 @@ private[arrows] final object ArrowRun {
     private[this] final def runCont(t: Try[T]) = {
       var res: Result[_] =
         t match {
-          case t: Success[_] => new Sync(false, t.value)
-          case t: Failure[_] => new Sync(true, t.exception)
+          case t: Success[_] => new Sync(true, t.value)
+          case t: Failure[_] => new Sync(false, t.exception)
         }
       var i = 0
       while (i < pos) {

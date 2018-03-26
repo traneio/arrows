@@ -16,12 +16,12 @@ trait ArrowsTwitter {
   private[this] final val taskGen = ArrowsTwitterTaskGen(dist)
 
   @Benchmark
-  def arrowsArrow = {
+  def arrowsTwitterArrow = {
     Try(Await.result(arrowGen.run(1)))
   }
 
   @Benchmark
-  def arrowsTask = {
+  def arrowsTwitterTask = {
     Try(Await.result(taskGen(1).run))
   }
 }

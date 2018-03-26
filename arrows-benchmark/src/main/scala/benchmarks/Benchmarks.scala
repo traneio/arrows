@@ -36,6 +36,7 @@ class SyncSuccessOnlyBenchmarks
     )
   )
   with ArrowsTwitter
+  with ArrowsStdlib
   with CatsEffect
   with Monix
   with ScalaFuture
@@ -54,6 +55,7 @@ class SyncWithFailuresBenchmarks
     )
   )
   with ArrowsTwitter
+  with ArrowsStdlib
   with CatsEffect
   with Monix
   with ScalaFuture
@@ -71,6 +73,7 @@ class AsyncSuccessOnlyBenchmarks
     )
   )
   with ArrowsTwitter
+  with ArrowsStdlib
   with CatsEffect
   with Monix
   with ScalaFuture
@@ -90,6 +93,7 @@ class AsyncWithFailuresBenchmarks
     )
   )
   with ArrowsTwitter
+  with ArrowsStdlib
   with CatsEffect
   with Monix
   with ScalaFuture
