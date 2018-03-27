@@ -9,7 +9,7 @@ import com.twitter.util.Try
 
 private[arrows] final object ArrowRun {
 
-  import ArrowAst._
+  import ArrowImpl._
 
   final val MaxDepth = 512
 

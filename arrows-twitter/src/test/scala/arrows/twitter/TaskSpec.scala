@@ -88,8 +88,8 @@ class TaskSpec extends Spec {
 
   "fork" in {
     var thread: Thread = null
-    Task.fork(FuturePool.unboundedPool)(Task(thread = Thread.currentThread))
-    thread != Thread.currentThread() mustEqual true
+    eval(Task.fork(FuturePool.unboundedPool)(Task(thread = Thread.currentThread)))
+    thread != null && thread != Thread.currentThread() mustEqual true
   }
 
   "never" in {

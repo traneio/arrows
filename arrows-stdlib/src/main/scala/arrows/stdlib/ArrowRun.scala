@@ -9,13 +9,13 @@ import scala.concurrent.ExecutionContext
 
 private[arrows] final object ArrowRun {
 
-  import ArrowAst._
+  import ArrowImpl._
 
   final val MaxDepth = 512
 
   sealed abstract class Result[+T] {
     def simplify: Result[T]
-    def cont[B >: T, U](a: Transform[_, B, U], depth: Int): Result[U]
+    def cont[B >: T, U](a: Transform[_, B, U], depth: Int)(implicit ec: ExecutionContext): Result[U]
 
     final def as[U] = this.asInstanceOf[Result[U]]
 
@@ -32,7 +32,7 @@ private[arrows] final object ArrowRun {
   final class Sync[+T](
     private[this] var _success: Boolean,
     private[this] var curr:     Any
-  )(implicit ec: ExecutionContext)
+  )
     extends Result[T] {
 
     def success = _success
@@ -68,7 +68,7 @@ private[arrows] final object ArrowRun {
 
     override final def simplify = this
 
-    override final def cont[B >: T, U](a: Transform[_, B, U], depth: Int) =
+    override final def cont[B >: T, U](a: Transform[_, B, U], depth: Int)(implicit ec: ExecutionContext) =
       a.runCont(this, depth)
   }
 
@@ -114,7 +114,7 @@ private[arrows] final object ArrowRun {
           this
       }
 
-    override final def cont[B >: T, U](a: Transform[_, B, U], depth: Int) = {
+    override final def cont[B >: T, U](a: Transform[_, B, U], depth: Int)(implicit ec: ExecutionContext) = {
       if (pos == stack.length)
         stack = Arrays.copyOf(stack, pos + pos / 2)
       stack(pos) = a.asInstanceOf[Transform[Any, Any, Any]]
@@ -175,7 +175,7 @@ private[arrows] final object ArrowRun {
           res.asInstanceOf[Result[U]]
       }
 
-    override final def cont[B >: U, V](a: Transform[_, B, V], depth: Int) = {
+    override final def cont[B >: U, V](a: Transform[_, B, V], depth: Int)(implicit ec: ExecutionContext) = {
       stacks(stacks.length - 1)(pos) = a.asInstanceOf[Transform[Any, Any, Any]]
       pos += 1
       this.as[V]

@@ -6,7 +6,7 @@ import ArrowRun._
 
 abstract class Arrow[-T, +U] extends (T => Task[U]) {
 
-  import ArrowAst._
+  import ArrowImpl._
 
   private[arrows] def runSync[B <: T](s: Sync[B], depth: Int): Result[U]
   private[arrows] final def cast[A, B] = this.asInstanceOf[Arrow[A, B]]
@@ -244,7 +244,7 @@ abstract class Arrow[-T, +U] extends (T => Task[U]) {
 
 final object Arrow {
 
-  import ArrowAst._
+  import ArrowImpl._
   import scala.language.implicitConversions
 
   @deprecated("Use task.run", "")

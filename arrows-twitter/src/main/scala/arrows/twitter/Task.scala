@@ -10,7 +10,7 @@ import com.twitter.util.Future.NextThrewException
 // type Task[+T] = Arrow[Unit, T] (see package object)
 final object Task {
 
-  import ArrowAst._
+  import ArrowImpl._
 
   final val DEFAULT_TIMEOUT: Duration = Duration.Top
 

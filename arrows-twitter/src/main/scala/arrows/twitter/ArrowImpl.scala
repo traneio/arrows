@@ -7,7 +7,7 @@ import com.twitter.util.Try
 import ArrowRun._
 import com.twitter.util.Monitor
 
-private[arrows] final object ArrowAst {
+private[arrows] final object ArrowImpl {
 
   type Point[T] = Arrow[Any, T]
 

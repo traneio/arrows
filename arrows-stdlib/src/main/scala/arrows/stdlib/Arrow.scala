@@ -7,10 +7,12 @@ import scala.util.Try
 import scala.reflect.ClassTag
 import scala.util.Success
 import scala.util.Failure
+import scala.collection.generic.CanBuildFrom
+import language.implicitConversions
 
 abstract class Arrow[-T, +U] extends (T => Task[U]) {
 
-  import ArrowAst._
+  import ArrowImpl._
 
   private[arrows] def runSync[B <: T](s: Sync[B], depth: Int)(implicit ec: ExecutionContext): Result[U]
   private[arrows] final def cast[A, B] = this.asInstanceOf[Arrow[A, B]]
@@ -212,11 +214,31 @@ abstract class Arrow[-T, +U] extends (T => Task[U]) {
 
 final object Arrow {
 
-  import ArrowAst._
+  import ArrowImpl._
+  import language.higherKinds
 
   final def apply[T]: Arrow[T, T] = Identity
 
+  @deprecated("Use task.run", "")
+  implicit final def toFuture[T](t: Task[T])(implicit ec: ExecutionContext): Future[T] = t.run
+
+  @deprecated("Use Task.fromFuture", "")
+  implicit final def fromFuture[T](f: => Future[T]): Task[T] = Task.fromFuture(f)
+
+  final def successful[T](v: T): Arrow[Any, T] = Successful(v)
+
   final def failed[T](exception: Throwable): Arrow[Any, T] = Failed(exception)
+
+  final def sequence[T, U, M[X] <: TraversableOnce[X]](in: M[Arrow[T, U]])(
+    implicit
+    cbf: CanBuildFrom[M[Arrow[T, U]], U, M[U]]
+  ): Arrow[T, M[U]] =
+    Sequence[T, U, M](in)
+
+  final def fork[T, U](t: Arrow[T, U])(implicit ec: ExecutionContext): Arrow[T, U] =
+    new Fork(t)
+
+  final def recursive[T, U](r: Arrow[T, U] => Arrow[T, U]): Arrow[T, U] = Recursive(r)
 
   private[stdlib] val toBoxed = scala.collection.Map[Class[_], Class[_]](
     classOf[Boolean] -> classOf[java.lang.Boolean],

@@ -14,7 +14,7 @@ import scala.util.control.NonFatal
 import com.twitter.util.Promise
 import com.twitter.util.Throw
 
-trait ValueFuture[T] extends Future[T] {
+trait ConstFuture[T] extends Future[T] {
   def isReady(implicit permit: Awaitable.CanAwait): Boolean = true
 
   override def ready(timeout: Duration)(implicit permit: Awaitable.CanAwait) = this
@@ -61,12 +61,12 @@ trait ValueFuture[T] extends Future[T] {
   }
 }
 
-class ReturnFuture[T](r: T) extends ValueFuture[T] {
+class ReturnFuture[T](r: T) extends ConstFuture[T] {
   override def result(timeout: Duration)(implicit permit: Awaitable.CanAwait): T = r
   override final def toTry = Return(r)
 }
 
-class ThrowFuture[T](ex: Throwable) extends ValueFuture[T] {
+class ThrowFuture[T](ex: Throwable) extends ConstFuture[T] {
   override def result(timeout: Duration)(implicit permit: Awaitable.CanAwait): T = throw ex
   override final def toTry = Throw(ex)
 }

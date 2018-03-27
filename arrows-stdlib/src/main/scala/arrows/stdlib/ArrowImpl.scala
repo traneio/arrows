@@ -1,5 +1,6 @@
 package arrows.stdlib
 
+import language.higherKinds
 import scala.util.control.{ NonFatal => ScalaNonFatal }
 
 import ArrowRun._
@@ -8,8 +9,9 @@ import scala.util.Try
 import scala.concurrent.Future
 import scala.util.Success
 import scala.util.Failure
+import scala.collection.generic.CanBuildFrom
 
-private[arrows] final object ArrowAst {
+private[arrows] final object ArrowImpl {
 
   type Point[T] = Arrow[Any, T]
 
@@ -28,9 +30,9 @@ private[arrows] final object ArrowAst {
       b.runSync(r, depth)
   }
 
-  final class FromFuture[T](fut: => Future[T]) extends Point[T] {
+  final class FromFuture[T](fut: ExecutionContext => Future[T]) extends Point[T] {
     override final def runSync[B <: Any](r: Sync[B], depth: Int)(implicit ec: ExecutionContext): Result[T] =
-      Async(r, fut)
+      Async(r, fut(ec))
   }
 
   final case class Recursive[T, U](r: Arrow[T, U] => Arrow[T, U]) extends Transform[T, U, U] {
@@ -182,5 +184,56 @@ private[arrows] final object ArrowAst {
     def future(u: Future[U], v: Future[V])(implicit ec: ExecutionContext): Future[X]
   }
 
+  final case class Sequence[T, U, M[X] <: TraversableOnce[X]](in: M[Arrow[T, U]])(
+      implicit cbf: CanBuildFrom[M[Arrow[T, U]], U, M[U]]) extends Arrow[T, M[U]] {
+    override final def runSync[B <: T](s: Sync[B], depth: Int)(implicit ec: ExecutionContext): Result[M[U]] =
+      if (!s.success)
+        s.as[M[U]]
+      else {
+        val v = s.value
+        val arr = new Array[AnyRef](in.size)
+        val it = in.toIterator
+        var i = 0
+        var success = true
+        while (it.hasNext) {
+          val a = it.next()
+          val s = a.runSync(new Sync(true, v), depth).simplifyGraph
+          s match {
+            case s: Sync[_] =>
+              if (!s.success)
+                return s.as[M[U]]
+              else
+                success &&= s.success
+            case s =>
+              success = false
+          }
+          arr(i) = s
+          i += 1
+        }
+
+        if (success) {
+          var i = 0
+          val builder = cbf()
+          while (i < arr.length) {
+            builder += arr(i).asInstanceOf[Sync[U]].value
+            i += 1
+          }
+          new Sync(true, builder.result())
+        } else {
+          var i = 0
+          val futures = arr.asInstanceOf[Array[Future[U]]]
+          while (i < arr.length) {
+            futures(i) = arr(i).asInstanceOf[Result[U]].toFuture
+            i += 1
+          }
+          Async(null, Future.sequence(futures.toSeq).map(cbf().++=(_).result()))
+        }
+      }
+  }
+
+  class Fork[T, U](t: Arrow[T, U])(implicit fec: ExecutionContext) extends Arrow[T, U] {
+    override final def runSync[B <: T](r: Sync[B], depth: Int)(implicit ec: ExecutionContext): Result[U] =
+      Async(r, Future(t.runSync(r, 0)(fec).toFuture)(fec).flatten)(ec)
+  }
 }
 
