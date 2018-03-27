@@ -14,7 +14,7 @@ final object Task {
   import ArrowImpl._
 
   val unit: Arrow[Any, Unit] = successful(())
-  
+
   // TODO optimize
   final val never: Task[Nothing] = fromFuture(Future.never)
 
