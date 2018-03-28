@@ -14,9 +14,10 @@ class ArrowSpec extends Spec {
   object ex extends Exception
 
   def test[T](
-    f: Arrow[Int, Int] => Arrow[Int, T],
+    f:     Arrow[Int, Int] => Arrow[Int, T],
     cases: List[(Try[Int], Try[T])],
-    check: Try[Int] => Unit = _ => ()) = {
+    check: Try[Int] => Unit = _ => ()
+  ) = {
     cases.map {
       case (input, result) =>
         s"$input => $result" - {
@@ -67,7 +68,9 @@ class ArrowSpec extends Spec {
         _.flatMap(Arrow[Int]),
         List(
           Success(1) -> Success(1),
-          Failure(ex) -> Failure(ex)))
+          Failure(ex) -> Failure(ex)
+        )
+      )
     }
     "andThen" - {
       "identity" - {
@@ -75,21 +78,27 @@ class ArrowSpec extends Spec {
           _.andThen(Arrow[Int]),
           List(
             Success(1) -> Success(1),
-            Failure(ex) -> Failure(ex)))
+            Failure(ex) -> Failure(ex)
+          )
+        )
       }
       "with map" - {
         test(
           _.andThen(Arrow[Int].map(_ + 1)),
           List(
             Success(1) -> Success(2),
-            Failure(ex) -> Failure(ex)))
+            Failure(ex) -> Failure(ex)
+          )
+        )
       }
       "with handle" - {
         test(
           _.andThen(Arrow[Int].recover { case _ => 2 }),
           List(
             Success(1) -> Success(1),
-            Failure(ex) -> Success(2)))
+            Failure(ex) -> Success(2)
+          )
+        )
       }
     }
 
@@ -99,14 +108,18 @@ class ArrowSpec extends Spec {
           _.map(_ + 1),
           List(
             Success(1) -> Success(2),
-            Failure(ex) -> Failure(ex)))
+            Failure(ex) -> Failure(ex)
+          )
+        )
       }
       "failure" - {
         test(
           _.map(_ => throw ex),
           List(
             Success(1) -> Failure(ex),
-            Failure(ex) -> Failure(ex)))
+            Failure(ex) -> Failure(ex)
+          )
+        )
       }
     }
 
@@ -116,14 +129,18 @@ class ArrowSpec extends Spec {
           _.flatMap(i => Task.successful(i + 1)),
           List(
             Success(1) -> Success(2),
-            Failure(ex) -> Failure(ex)))
+            Failure(ex) -> Failure(ex)
+          )
+        )
       }
       "failure" - {
         test(
           _.flatMap(_ => throw ex),
           List(
             Success(1) -> Failure(ex),
-            Failure(ex) -> Failure(ex)))
+            Failure(ex) -> Failure(ex)
+          )
+        )
       }
     }
 
@@ -133,14 +150,18 @@ class ArrowSpec extends Spec {
           _.recover { case _ => 2 },
           List(
             Success(1) -> Success(1),
-            Failure(ex) -> Success(2)))
+            Failure(ex) -> Success(2)
+          )
+        )
       }
       "failure" - {
         test(
           _.recover { case _ => throw ex },
           List(
             Success(1) -> Success(1),
-            Failure(ex) -> Failure(ex)))
+            Failure(ex) -> Failure(ex)
+          )
+        )
       }
     }
 
@@ -151,8 +172,10 @@ class ArrowSpec extends Spec {
           _.onComplete(r = _),
           List(
             Success(1) -> Success(1),
-            Failure(ex) -> Failure(ex)),
-          r mustEqual _)
+            Failure(ex) -> Failure(ex)
+          ),
+          r mustEqual _
+        )
       }
       "failure" - {
         var r: Try[Int] = null
@@ -163,8 +186,10 @@ class ArrowSpec extends Spec {
           },
           List(
             Success(1) -> Success(1),
-            Failure(ex) -> Failure(ex)),
-          r mustEqual _)
+            Failure(ex) -> Failure(ex)
+          ),
+          r mustEqual _
+        )
       }
     }
 
@@ -174,14 +199,18 @@ class ArrowSpec extends Spec {
           _.transform(identity),
           List(
             Success(1) -> Success(1),
-            Failure(ex) -> Failure(ex)))
+            Failure(ex) -> Failure(ex)
+          )
+        )
       }
       "failure" - {
         test(
           _.transform(_ => Failure(ex)),
           List(
             Success(1) -> Failure(ex),
-            Failure(ex) -> Failure(ex)))
+            Failure(ex) -> Failure(ex)
+          )
+        )
       }
     }
 
@@ -191,14 +220,18 @@ class ArrowSpec extends Spec {
           _.transformWith(Task.successful),
           List(
             Success(1) -> Success(Success(1)),
-            Failure(ex) -> Success(Failure(ex))))
+            Failure(ex) -> Success(Failure(ex))
+          )
+        )
       }
       "failure" - {
         test(
           _.transformWith(_ => throw ex),
           List(
             Success(1) -> Failure(ex),
-            Failure(ex) -> Failure(ex)))
+            Failure(ex) -> Failure(ex)
+          )
+        )
       }
     }
 
@@ -214,14 +247,17 @@ class ArrowSpec extends Spec {
             Success(1) -> Success(1),
             Failure(ex) -> Success(2),
             Failure(new NullPointerException) -> Success(3),
-            Failure(other) -> Failure(other)))
+            Failure(other) -> Failure(other)
+          )
+        )
       }
       "failure" - {
         test(
           _.recoverWith {
             case _ => throw ex
           },
-          List(Failure(new NullPointerException) -> Failure(ex)))
+          List(Failure(new NullPointerException) -> Failure(ex))
+        )
       }
     }
 
@@ -232,11 +268,13 @@ class ArrowSpec extends Spec {
         test(
           _.foreach(c1 += _),
           List(
-            Success(1) -> Success(1)),
+            Success(1) -> Success(1)
+          ),
           _ => {
             c2 += 1
             c1 mustEqual c2
-          })
+          }
+        )
       }
 
       "failure" - {
@@ -244,10 +282,12 @@ class ArrowSpec extends Spec {
         test(
           _.foreach(_ => c = true),
           List(
-            Failure(ex) -> Failure(ex)),
+            Failure(ex) -> Failure(ex)
+          ),
           _ => {
             c mustEqual false
-          })
+          }
+        )
       }
     }
 
@@ -258,11 +298,13 @@ class ArrowSpec extends Spec {
         test(
           _.onSuccess { case i => c1 += i },
           List(
-            Success(1) -> Success(1)),
+            Success(1) -> Success(1)
+          ),
           _ => {
             c2 += 1
             c1 mustEqual c2
-          })
+          }
+        )
       }
 
       "failure" - {
@@ -270,10 +312,12 @@ class ArrowSpec extends Spec {
         test(
           _.onSuccess { case _ => c = true },
           List(
-            Failure(ex) -> Failure(ex)),
+            Failure(ex) -> Failure(ex)
+          ),
           _ => {
             c mustEqual false
-          })
+          }
+        )
       }
     }
 
@@ -283,14 +327,18 @@ class ArrowSpec extends Spec {
           _.filter(_ == 1),
           List(
             Success(1) -> Success(1),
-            Failure(ex) -> Failure(ex)))
+            Failure(ex) -> Failure(ex)
+          )
+        )
       }
       "failure" - {
         test(
           _.filter(_ => throw ex),
           List(
             Success(1) -> Failure(ex),
-            Failure(ex) -> Failure(ex)))
+            Failure(ex) -> Failure(ex)
+          )
+        )
       }
     }
 
@@ -300,14 +348,18 @@ class ArrowSpec extends Spec {
           _.withFilter(_ == 1),
           List(
             Success(1) -> Success(1),
-            Failure(ex) -> Failure(ex)))
+            Failure(ex) -> Failure(ex)
+          )
+        )
       }
       "failure" - {
         test(
           _.withFilter(_ => throw ex),
           List(
             Success(1) -> Failure(ex),
-            Failure(ex) -> Failure(ex)))
+            Failure(ex) -> Failure(ex)
+          )
+        )
       }
     }
 
@@ -318,21 +370,25 @@ class ArrowSpec extends Spec {
         test(
           _.onFailure { case _ => c1 += 1 },
           List(
-            Failure(ex) -> Failure(ex)),
+            Failure(ex) -> Failure(ex)
+          ),
           _ => {
             c2 += 1
             c1 mustEqual c2
-          })
+          }
+        )
       }
       "success" - {
         var c = false
         test(
           _.onFailure { case _ => c = true },
           List(
-            Success(1) -> Success(1)),
+            Success(1) -> Success(1)
+          ),
           _ => {
             c mustEqual false
-          })
+          }
+        )
       }
     }
 
@@ -341,7 +397,9 @@ class ArrowSpec extends Spec {
         _.zip(Task.successful(2)),
         List(
           Success(1) -> Success((1, 2)),
-          Failure(ex) -> Failure(ex)))
+          Failure(ex) -> Failure(ex)
+        )
+      )
     }
 
     "zipWith" - {
@@ -350,7 +408,9 @@ class ArrowSpec extends Spec {
           _.zipWith(Task.successful(2))(_ + _),
           List(
             Success(1) -> Success(3),
-            Failure(ex) -> Failure(ex)))
+            Failure(ex) -> Failure(ex)
+          )
+        )
       }
       //      "failure" - {
       //        test(
@@ -366,7 +426,9 @@ class ArrowSpec extends Spec {
         _.map(Task.successful).flatten,
         List(
           Success(1) -> Success(1),
-          Failure(ex) -> Failure(ex)))
+          Failure(ex) -> Failure(ex)
+        )
+      )
     }
   }
 

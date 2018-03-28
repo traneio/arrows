@@ -185,7 +185,9 @@ private[arrows] final object ArrowImpl {
   }
 
   final case class Sequence[T, U, M[X] <: TraversableOnce[X]](in: M[Arrow[T, U]])(
-      implicit cbf: CanBuildFrom[M[Arrow[T, U]], U, M[U]]) extends Arrow[T, M[U]] {
+    implicit
+    cbf: CanBuildFrom[M[Arrow[T, U]], U, M[U]]
+  ) extends Arrow[T, M[U]] {
     override final def runSync[B <: T](s: Sync[B], depth: Int)(implicit ec: ExecutionContext): Result[M[U]] =
       if (!s.success)
         s.as[M[U]]
