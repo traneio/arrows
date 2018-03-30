@@ -4,8 +4,9 @@ import monix.eval.Task
 import monix.execution.Cancelable
 import org.openjdk.jmh.annotations.Benchmark
 import scala.util.Try
+import scala.util.Success
 
-trait Monix {
+trait MonixAsync {
   this: Benchmarks =>
 
   private[this] final val gen = MonixGen(dist)
@@ -16,6 +17,19 @@ trait Monix {
     import scala.concurrent.duration._
     import monix.execution.Scheduler.Implicits.global
     Try(Await.result(gen(1).runAsync, Duration.Inf))
+  }
+
+}
+
+trait MonixSync {
+  this: Benchmarks =>
+
+  private[this] final val gen = MonixGen(dist)
+
+  @Benchmark
+  def monixTask = {
+    import monix.execution.Scheduler.Implicits.global
+    Success(gen(1).runSyncMaybe.right.get)
   }
 }
 

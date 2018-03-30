@@ -48,11 +48,15 @@ lazy val `arrows-stdlib-js` = `arrows-stdlib`.js
 
 lazy val `arrows-twitter` = project
   .settings(commonSettings)
+  .settings(crossScalaVersions := Seq("2.11.12", "2.12.5"))
   .settings(
     libraryDependencies ++= Seq(
       "com.twitter" %% "util-core" % "18.3.0"
     )
   )
+
+lazy val scalaz8Effect = 
+  ProjectRef(uri("https://github.com/scalaz/scalaz.git#fcd2d2b320770e2a74e1fb16499f9ab6a402d608"), "effectJVM")
 
 lazy val `arrows-benchmark` = project
   .settings(commonSettings)
@@ -60,12 +64,11 @@ lazy val `arrows-benchmark` = project
     resolvers += Resolver.sonatypeRepo("snapshots"),
     libraryDependencies ++= Seq(
       "io.monix" %% "monix" % "3.0.0-RC1",
-      "scalaz-effect" %% "scalaz-effect" % "0.1.0-SNAPSHOT",
       "io.trane" % "future-java" % "0.2.2",
       "org.typelevel" %% "cats-effect" % "0.10"
     )
   )
-  .dependsOn(`arrows-stdlib-jvm`, `arrows-twitter`)
+  .dependsOn(`arrows-stdlib-jvm`, `arrows-twitter`, scalaz8Effect)
   .enablePlugins(JmhPlugin)
 
 def updateReadmeVersion(selectVersion: sbtrelease.Versions => String) =
@@ -104,7 +107,6 @@ def updateWebsiteTag =
 
 lazy val commonSettings = Seq(
   scalaVersion := "2.12.5",
-  crossScalaVersions := Seq("2.11.12", "2.12.5"),
   // crossScalaVersions := Seq("2.11.12", "2.12.4"),
   organization := "com.github.fwbrasil.arrows",
   EclipseKeys.eclipseOutput := Some("bin"),

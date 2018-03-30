@@ -18,7 +18,8 @@ abstract class Benchmarks(val dist: List[(Gen.Op, Int)]) {
     val results = methods.map(m => m.getName -> m.invoke(this)).toMap
     if (results.values.toSet.size != 1) {
       tearDown
-      sys.error(s"One benchmark return a different value. Results: $results")
+      val grouped = results.groupBy(_._2).mapValues(_.map(_._1))
+      sys.error(s"One benchmark return a different value. Results: $grouped")
     }
   }
 
@@ -38,7 +39,7 @@ class SyncSuccessOnlyBenchmarks
   with ArrowsTwitter
   with ArrowsStdlib
   with CatsEffect
-  with Monix
+  with MonixSync
   with ScalaFuture
   with TwitterFuture
   with TraneIO
@@ -57,7 +58,7 @@ class SyncWithFailuresBenchmarks
   with ArrowsTwitter
   with ArrowsStdlib
   with CatsEffect
-  with Monix
+  with MonixSync
   with ScalaFuture
   with TwitterFuture
   with TraneIO
@@ -75,7 +76,7 @@ class AsyncSuccessOnlyBenchmarks
   with ArrowsTwitter
   with ArrowsStdlib
   with CatsEffect
-  with Monix
+  with MonixAsync
   with ScalaFuture
   with TwitterFuture
   with TraneIO
@@ -95,7 +96,7 @@ class AsyncWithFailuresBenchmarks
   with ArrowsTwitter
   with ArrowsStdlib
   with CatsEffect
-  with Monix
+  with MonixAsync
   with ScalaFuture
   with TwitterFuture
   with TraneIO
