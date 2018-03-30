@@ -1,4 +1,4 @@
-package benchmarks
+package benchmarks.gen
 
 import scalaz._
 import scalaz.effect.IO

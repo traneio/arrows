@@ -1,4 +1,4 @@
-package benchmarks
+package benchmarks.gen
 
 import org.openjdk.jmh.annotations._
 import java.util.concurrent.TimeUnit

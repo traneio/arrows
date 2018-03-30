@@ -1,4 +1,4 @@
-package benchmarks
+package benchmarks.gen
 
 import com.twitter.util.Promise
 import com.twitter.util.Future

@@ -1,4 +1,4 @@
-package benchmarks
+package benchmarks.gen
 
 import scala.annotation.tailrec
 import scala.util.Random
