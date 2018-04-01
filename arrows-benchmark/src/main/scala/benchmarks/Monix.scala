@@ -1,4 +1,4 @@
-package benchmarks.gen
+package benchmarks
 
 import monix.eval.Task
 import monix.execution.Cancelable

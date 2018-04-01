@@ -1,4 +1,4 @@
-package benchmarks.gen
+package benchmarks
 
 import cats.effect.IO
 import org.openjdk.jmh.annotations.Benchmark

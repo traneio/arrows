@@ -1,4 +1,4 @@
-package benchmarks.gen
+package benchmarks
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import arrows.stdlib.Arrow

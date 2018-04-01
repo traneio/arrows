@@ -1,4 +1,4 @@
-package benchmarks.gen
+package benchmarks
 
 import java.util.function.Function
 
