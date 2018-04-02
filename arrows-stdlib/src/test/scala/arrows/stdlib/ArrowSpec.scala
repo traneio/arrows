@@ -1,14 +1,11 @@
 package arrows.stdlib
 
-import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
 import scala.util._
 import scala.concurrent._
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
 import java.util.concurrent.Executors
 
-@RunWith(classOf[JUnitRunner])
 class ArrowSpec extends Spec {
 
   object ex extends Exception

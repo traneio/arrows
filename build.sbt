@@ -123,10 +123,9 @@ lazy val commonSettings = Seq(
     "-Ywarn-unused-import"
     ),
   libraryDependencies ++= Seq(
-      "org.scalactic" %% "scalactic" % "3.0.4" % Test,
-      "org.scalacheck" %% "scalacheck" % "1.13.4" % Test,
-      "org.scalatest" %% "scalatest" % "3.0.4" % Test,
-      "junit" % "junit" % "4.12" % Test
+      "org.scalatest" %% "scalatest" % "3.0.4" % Test
+      // ,
+      // "junit" % "junit" % "4.12" % Test
     ),
   ScalariformKeys.preferences := ScalariformKeys.preferences.value
     .setPreference(AlignParameters, true)

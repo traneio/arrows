@@ -3,10 +3,7 @@ package arrows.twitter
 import language.postfixOps
 import com.twitter.util._
 import com.twitter.util.TimeConversions._
-import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
 
-@RunWith(classOf[JUnitRunner])
 class ArrowSpec extends Spec {
 
   implicit val timer = new JavaTimer(true)

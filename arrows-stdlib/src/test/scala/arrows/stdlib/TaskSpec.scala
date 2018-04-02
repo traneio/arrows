@@ -6,10 +6,7 @@ import scala.concurrent.duration._
 import scala.util._
 import scala.concurrent.ExecutionContext.Implicits.global
 import java.util.concurrent.Executors
-import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
 
-@RunWith(classOf[JUnitRunner])
 class TaskSpec extends Spec {
 
   object ex extends Exception
