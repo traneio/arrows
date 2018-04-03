@@ -250,8 +250,8 @@ final object Arrow {
   @deprecated("Use task.run", "")
   implicit final def toFuture[T](t: Task[T]): Future[T] = t.run
 
-  @deprecated("Use Task.fromFuture", "")
-  implicit final def fromFuture[T](f: => Future[T]): Task[T] = Task.fromFuture(f)
+  @deprecated("Use Task.async", "")
+  implicit final def fromFuture[T](f: => Future[T]): Task[T] = Task.async(f)
 
   final def apply[T]: Arrow[T, T] = Identity
 
@@ -281,7 +281,7 @@ final object Arrow {
   private final val ToUnit: Any => Unit = _ => ()
   private final val ToVoid: Any => Void = _ => (null: Void)
 
-  final object NotApplied
+  private[arrows] final object NotApplied
   private[arrows] final val AlwaysNotApplied: Any => AnyRef = _ => NotApplied
 
   private final val AlwaysMasked: PartialFunction[Throwable, Boolean] = { case _ => true }

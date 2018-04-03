@@ -35,7 +35,7 @@ object ArrowsStdlibTaskGen extends Gen[Int => Task[Int]] {
     v =>
       val p = Promise[Int]()
       schedule(() => p.success(v))
-      Task.fromFuture(p.future)
+      Task.async(p.future)
   }
 
   def failure(ex: Throwable) = v => Task.failed(ex)
@@ -58,7 +58,7 @@ object ArrowsStdlibArrowGen extends Gen[Arrow[Int, Int]] {
     Arrow[Int].flatMap { v =>
       val p = Promise[Int]()
       schedule(() => p.success(v))
-      Task.fromFuture(p.future)
+      Task.async(p.future)
     }
 
   def failure(ex: Throwable) = Arrow.failed(ex)

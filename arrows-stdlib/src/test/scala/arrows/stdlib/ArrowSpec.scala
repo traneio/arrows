@@ -434,7 +434,7 @@ class ArrowSpec extends Spec {
       val f: Future[Int] = Arrow.successful(1)
       eval(f) mustEqual 1
     }
-    "fromFuture" in {
+    "async" in {
       val f: Arrow[Unit, Int] = Future.successful(1)
       eval(f.run) mustEqual 1
     }

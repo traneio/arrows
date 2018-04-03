@@ -14,7 +14,7 @@ private[arrows] final object ArrowImpl {
   trait Transform[T, U, V] extends Arrow[T, V] {
     def a: Arrow[T, U]
 
-    def runSync[B <: T](r: Sync[B], depth: Int): Result[V] =
+    final def runSync[B <: T](r: Sync[B], depth: Int): Result[V] =
       if (depth > MaxDepth)
         new Defer(r, this)
       else
@@ -162,7 +162,7 @@ private[arrows] final object ArrowImpl {
 
   trait TransformFuture[T, U, V] extends Arrow[T, V] {
     def a: Arrow[T, U]
-    def runSync[B <: T](r: Sync[B], depth: Int): Result[V] =
+    final def runSync[B <: T](r: Sync[B], depth: Int): Result[V] =
       if (depth > MaxDepth)
         new Defer(r, this)
       else {

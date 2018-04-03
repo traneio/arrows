@@ -31,7 +31,7 @@ final object Task {
   final val ??? : Task[Nothing] =
     exception(new NotImplementedError("an implementation is missing"))
 
-  final def fromFuture[T](f: => Future[T]): Task[T] =
+  final def async[T](f: => Future[T]): Task[T] =
     new FromFuture(f)
 
   final def const[T](result: Try[T]): Task[T] =
@@ -47,7 +47,7 @@ final object Task {
   final def fork[T](pool: FuturePool)(t: Task[T]): Task[T] = Arrow.fork(pool)(t)
 
   // TODO optimize
-  final val never: Task[Nothing] = fromFuture(Future.never)
+  final val never: Task[Nothing] = async(Future.never)
 
   final def sleep(howlong: Duration)(implicit timer: Timer): Task[Unit] =
     new TransformFuture[Unit, Unit, Unit] {
@@ -60,8 +60,8 @@ final object Task {
 
   final def monitored[T, U](a: Arrow[T, U]): Arrow[T, U] =
     new Wrap[T, U] {
-      override def arrow = a
-      override def wrap(f: => Future[U]): Future[U] =
+      override final def arrow = a
+      override final def wrap(f: => Future[U]): Future[U] =
         Future.monitored(f)
     }
 
@@ -70,7 +70,7 @@ final object Task {
   final def join[A](fs: Seq[Task[A]]): Task[Unit] =
     collect(fs).unit
 
-  private final val toTupleInstance =
+  private[this] final val toTupleInstance =
     (seq: Seq[Any]) => {
       val size = seq.size
       val it = seq.iterator
@@ -100,7 +100,7 @@ final object Task {
       }
     }
 
-  private final def toTuple[A, B] = toTupleInstance.asInstanceOf[Seq[A] => B]
+  private[this] final def toTuple[A, B] = toTupleInstance.asInstanceOf[Seq[A] => B]
 
   final def join[A, B](a: Task[A], b: Task[B]): Task[(A, B)] =
     collect(Seq(a, b)).map(toTuple)
@@ -445,15 +445,15 @@ final object Task {
 
   // TODO optimize
   final def select[A](fs: Seq[Task[A]]): Task[(Try[A], Seq[Task[A]])] =
-    Task.fromFuture {
+    Task.async {
       Future.select(fs.map(_.run)).map {
-        case (t, futs) => (t, futs.map(fromFuture(_)))
+        case (t, futs) => (t, futs.map(async(_)))
       }
     }
 
   // TODO optimize
   final def selectIndex[A](fs: IndexedSeq[Task[A]]): Task[Int] =
-    Task.fromFuture(Future.selectIndex(fs.map(_.run)))
+    Task.async(Future.selectIndex(fs.map(_.run)))
 
   final def times[A](n: Int)(f: Task[A]): Task[Unit] = {
     var i = 0

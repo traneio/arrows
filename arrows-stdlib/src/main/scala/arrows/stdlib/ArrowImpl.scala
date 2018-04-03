@@ -51,7 +51,7 @@ private[arrows] final object ArrowImpl {
   trait Transform[T, U, V] extends Arrow[T, V] {
     def a: Arrow[T, U]
 
-    def runSync[B <: T](r: Sync[B], depth: Int)(implicit ec: ExecutionContext): Result[V] =
+    final def runSync[B <: T](r: Sync[B], depth: Int)(implicit ec: ExecutionContext): Result[V] =
       if (depth > MaxDepth)
         new Defer(r, this)
       else

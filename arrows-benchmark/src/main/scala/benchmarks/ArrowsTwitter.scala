@@ -36,7 +36,7 @@ object ArrowsTwitterTaskGen extends Gen[Int => Task[Int]] {
         override def run() = setValue(v)
       }
       schedule(p)
-      Task.fromFuture(p)
+      Task.async(p)
   }
 
   def failure(ex: Throwable) = v => Task.exception(ex)
@@ -61,7 +61,7 @@ object ArrowsTwitterArrowGen extends Gen[Arrow[Int, Int]] {
         override def run() = setValue(v)
       }
       schedule(p)
-      Task.fromFuture(p)
+      Task.async(p)
     }
 
   def failure(ex: Throwable) = Arrow.exception(ex)

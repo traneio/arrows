@@ -30,12 +30,12 @@ private[arrows] final object ArrowRun {
   }
 
   final class Sync[+T](
-    private[this] var _success: Boolean,
-    private[this] var curr:     Any
+    private[this] final var _success: Boolean,
+    private[this] final var curr:     Any
   )
     extends Result[T] {
 
-    def success = _success
+    final def success = _success
 
     final def unit: Sync[Unit] =
       success(())
@@ -73,12 +73,12 @@ private[arrows] final object ArrowRun {
   }
 
   final class Async[T](
-    private[this] var fut: Future[T]
+    private[this] final var fut: Future[T]
   )(implicit ec: ExecutionContext)
     extends Result[T] with (Try[T] => Future[T]) {
 
-    private[this] var stack = new Array[Transform[Any, Any, Any]](10)
-    private[this] var pos = 0
+    private[this] final var stack = new Array[Transform[Any, Any, Any]](10)
+    private[this] final var pos = 0
 
     override final def toFuture = {
       val r = simplify
@@ -145,10 +145,10 @@ private[arrows] final object ArrowRun {
   }
 
   final class Defer[T, U](r: Sync[T], a: Arrow[T, U])(implicit ec: ExecutionContext) extends Result[U] {
-    private var stacks = Array(new Array[Transform[Any, Any, Any]](MaxDepth + 1))
-    private[this] var pos = 0
+    private final var stacks = Array(new Array[Transform[Any, Any, Any]](MaxDepth + 1))
+    private[this] final var pos = 0
 
-    override def toFuture =
+    override final def toFuture =
       simplifyGraph.toFuture
 
     override final def simplify =

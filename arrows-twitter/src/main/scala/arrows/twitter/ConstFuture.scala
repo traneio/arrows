@@ -15,14 +15,14 @@ import com.twitter.util.Promise
 import com.twitter.util.Throw
 
 trait ConstFuture[T] extends Future[T] {
-  def isReady(implicit permit: Awaitable.CanAwait): Boolean = true
+  final def isReady(implicit permit: Awaitable.CanAwait): Boolean = true
 
-  override def ready(timeout: Duration)(implicit permit: Awaitable.CanAwait) = this
-  def poll: Option[com.twitter.util.Try[T]] = Some(toTry)
+  override final def ready(timeout: Duration)(implicit permit: Awaitable.CanAwait) = this
+  final def poll: Option[com.twitter.util.Try[T]] = Some(toTry)
 
   protected def toTry: Try[T]
 
-  def respond(k: Try[T] => Unit): Future[T] = {
+  final def respond(k: Try[T] => Unit): Future[T] = {
     val saved = Local.save()
     Scheduler.submit(new Runnable {
       def run(): Unit = {
@@ -36,9 +36,9 @@ trait ConstFuture[T] extends Future[T] {
     this
   }
 
-  def raise(interrupt: Throwable): Unit = ()
+  final def raise(interrupt: Throwable): Unit = ()
 
-  def transform[B](f: Try[T] => Future[B]): Future[B] = {
+  final def transform[B](f: Try[T] => Future[B]): Future[B] = {
     val p = new Promise[B]
     // see the note on `respond` for an explanation of why `Scheduler` is used.
     val saved = Local.save()
@@ -62,11 +62,11 @@ trait ConstFuture[T] extends Future[T] {
 }
 
 class ReturnFuture[T](r: T) extends ConstFuture[T] {
-  override def result(timeout: Duration)(implicit permit: Awaitable.CanAwait): T = r
+  override final def result(timeout: Duration)(implicit permit: Awaitable.CanAwait): T = r
   override final def toTry = Return(r)
 }
 
 class ThrowFuture[T](ex: Throwable) extends ConstFuture[T] {
-  override def result(timeout: Duration)(implicit permit: Awaitable.CanAwait): T = throw ex
+  override final def result(timeout: Duration)(implicit permit: Awaitable.CanAwait): T = throw ex
   override final def toTry = Throw(ex)
 }

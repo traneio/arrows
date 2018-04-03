@@ -60,12 +60,12 @@ class TaskSpec extends Spec {
     }
   }
 
-  "fromFuture" - {
+  "async" - {
     "success" in {
-      eval(Task.fromFuture(Future.value(1))) mustEqual 1
+      eval(Task.async(Future.value(1))) mustEqual 1
     }
     "failure" in {
-      evalTry(Task.fromFuture(Future.exception(ex))) mustEqual Throw(ex)
+      evalTry(Task.async(Future.exception(ex))) mustEqual Throw(ex)
     }
   }
 

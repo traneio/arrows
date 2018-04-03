@@ -637,7 +637,7 @@ class ArrowSpec extends Spec {
       p.setInterruptHandler {
         case `ex` => c = true
       }
-      val f = Task.fromFuture(p).mask {
+      val f = Task.async(p).mask {
         case `ex` => true
       }.run
       f.raise(ex)
@@ -650,7 +650,7 @@ class ArrowSpec extends Spec {
       p.setInterruptHandler {
         case `ex` => c = true
       }
-      val f = Task.fromFuture(p).masked.run
+      val f = Task.async(p).masked.run
       f.raise(ex)
       c mustEqual false
     }
@@ -688,7 +688,7 @@ class ArrowSpec extends Spec {
 
     "interruptible" in {
       val p = Promise[Int]
-      val f = Task.fromFuture(p).interruptible().run
+      val f = Task.async(p).interruptible().run
       f.raise(ex)
       Try(Await.result(f)) mustEqual Throw(ex)
     }
@@ -699,7 +699,7 @@ class ArrowSpec extends Spec {
       val f: Future[Int] = Arrow.value(1)
       Await.result(f) mustEqual 1
     }
-    "fromFuture" in {
+    "async" in {
       val f: Arrow[Unit, Int] = Future.value(1)
       Await.result(f.run) mustEqual 1
     }

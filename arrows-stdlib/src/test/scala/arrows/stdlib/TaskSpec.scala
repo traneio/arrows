@@ -14,12 +14,12 @@ class TaskSpec extends Spec {
   def eval[T](t: Task[T]) = Await.result(t.run, Duration.Inf)
   def evalTry[T](t: Task[T]) = Try(eval(t))
 
-  "fromFuture" - {
+  "async" - {
     "success" in {
-      eval(Task.fromFuture(Future.successful(1))) mustEqual 1
+      eval(Task.async(Future.successful(1))) mustEqual 1
     }
     "failure" in {
-      evalTry(Task.fromFuture(Future.failed(ex))) mustEqual Failure(ex)
+      evalTry(Task.async(Future.failed(ex))) mustEqual Failure(ex)
     }
   }
 
