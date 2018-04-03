@@ -44,7 +44,7 @@ lazy val `arrows-stdlib` =
     )
 
 lazy val `arrows-stdlib-jvm` = `arrows-stdlib`.jvm
-lazy val `arrows-stdlib-js` = `arrows-stdlib`.js
+lazy val `arrows-stdlib-js` = `arrows-stdlib`.js.settings(test := {})
 
 lazy val `arrows-twitter` = project
   .settings(commonSettings)
@@ -124,8 +124,6 @@ lazy val commonSettings = Seq(
     ),
   libraryDependencies ++= Seq(
       "org.scalatest" %% "scalatest" % "3.0.4" % Test
-      // ,
-      // "junit" % "junit" % "4.12" % Test
     ),
   ScalariformKeys.preferences := ScalariformKeys.preferences.value
     .setPreference(AlignParameters, true)

@@ -409,7 +409,7 @@ abstract class Arrow[-T, +U] extends (T => Task[U]) {
     }
 
   /**
-   *  Zips the values of `this` and `that` computation, and creates
+   *  Zips the values of `this` and `that` computations, and creates
    *  a new computation holding the tuple of their results.
    *
    *  If `this` computation fails, the resulting computation is failed
