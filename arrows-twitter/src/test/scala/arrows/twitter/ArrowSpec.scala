@@ -699,7 +699,7 @@ class ArrowSpec extends Spec {
       val f: Future[Int] = Arrow.value(1)
       Await.result(f) mustEqual 1
     }
-    "async" in {
+    "fromFuture" in {
       val f: Arrow[Unit, Int] = Future.value(1)
       Await.result(f.run) mustEqual 1
     }

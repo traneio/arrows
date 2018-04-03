@@ -11,14 +11,14 @@ import scala.concurrent.ExecutionContext
 /**
  * A `Task` is a specific case of an Arrow without
  * inputs. The package object defines it as:
- * 
+ *
  * {{{
  * type Task[+T] = Arrow[Unit, T]
  * }}}
- * 
+ *
  * It's the equivalent of `Task`/`IO` in libraries
  * like Scalaz 8, Cats Effect, and Monix.
- * 
+ *
  * This object provides operations to manipulate `Task`
  * instances similarly to how they'd be manipulated using
  * the `Future` companion object.
@@ -50,7 +50,7 @@ final object Task {
    * // Bad practice
    * val fut = performSomeAsyncSideEffect()
    * Task.async(fut)
-   * 
+   *
    * // Ok
    * Task.async(performSomeAsyncSideEffect())
    * }}}
@@ -121,7 +121,7 @@ final object Task {
     Arrow[Unit].map(_ => body)
 
   /**
-   *  Simple version of `Task.traverse`. Useful for reducing many `Task`s 
+   *  Simple version of `Task.traverse`. Useful for reducing many `Task`s
    *  into a single `Task`.
    *
    * @tparam A        the type of the value inside the Tasks
@@ -130,7 +130,9 @@ final object Task {
    * @return          the `Task` of the `TraversableOnce` of results
    */
   final def sequence[A, M[X] <: TraversableOnce[X]](in: M[Task[A]])(
-    implicit cbf: CanBuildFrom[M[Task[A]], A, M[A]]): Task[M[A]] =
+    implicit
+    cbf: CanBuildFrom[M[Task[A]], A, M[A]]
+  ): Task[M[A]] =
     Arrow.sequence(in)
 
   // TODO optimize all methods below
@@ -216,7 +218,7 @@ final object Task {
   /**
    *  A fold over the specified tasks, with the start value of the given zero.
    *  The fold is performed on the thread where the last task is completed,
-   *  the result will be the first failure of any of the tasks, or any failure 
+   *  the result will be the first failure of any of the tasks, or any failure
    *  in the actual fold, or the result of the fold.
    *
    *  Example:
