@@ -1,8 +1,6 @@
-#!/usr/bin/env bash
+    #!/usr/bin/env bash
 
 set -e # Any subsequent(*) commands which fail will cause the shell script to exit immediately
-chown root ~/.ssh/config
-chmod 644 ~/.ssh/config
 
 SBT_CMD="sbt"   
 SBT_CMD_2_11=" -DscalaVersion=2.11.12 ++2.11.12 clean coverage test tut coverageReport coverageAggregate checkUnformattedFiles"

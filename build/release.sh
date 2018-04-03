@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
 set -e # Any subsequent(*) commands which fail will cause the shell script to exit immediately
-chown root ~/.ssh/config
-chmod 644 ~/.ssh/config
-
 
 if [[ -n $SCALA_VERSION && $TRAVIS_PULL_REQUEST == "false" &&
     $TRAVIS_BRANCH == "master" && $(cat version.sbt) != *"SNAPSHOT"* ]]
