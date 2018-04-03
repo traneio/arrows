@@ -3,8 +3,8 @@
 set -e # Any subsequent(*) commands which fail will cause the shell script to exit immediately
 
 SBT_CMD="sbt"   
-SBT_CMD_2_11=" -DscalaVersion=2.11.12 ++2.11.12 clean coverage test tut coverageReport coverageAggregate checkUnformattedFiles"
-SBT_CMD_2_12=" -DscalaVersion=2.12.4 ++2.12.5 clean test"
+SBT_CMD_2_11=" ++2.11.12 clean coverage test tut coverageReport coverageAggregate checkUnformattedFiles"
+SBT_CMD_2_12=" ++2.12.5 clean test"
 SBT_PUBLISH=" coverageOff publish"
 
 if [[ $SCALA_VERSION == "2.11" ]]
@@ -19,7 +19,7 @@ fi
 
 if [[ $TRAVIS_PULL_REQUEST == "false" ]]
 then
-    SBT_CMD+=$SBT_PUBLISH
+    # SBT_CMD+=$SBT_PUBLISH
     openssl aes-256-cbc -pass pass:$ENCRYPTION_PASSWORD -in ./build/secring.gpg.enc -out local.secring.gpg -d
     openssl aes-256-cbc -pass pass:$ENCRYPTION_PASSWORD -in ./build/pubring.gpg.enc -out local.pubring.gpg -d
     openssl aes-256-cbc -pass pass:$ENCRYPTION_PASSWORD -in ./build/credentials.sbt.enc -out local.credentials.sbt -d

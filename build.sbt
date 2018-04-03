@@ -36,7 +36,7 @@ lazy val `arrows-stdlib` =
     .settings(commonSettings)
     .settings(
       name := "arrows-stdlib",
-      libraryDependencies += "org.scalatest" %%% "scalatest" % "3.0.1" % "test",
+      libraryDependencies += "org.scalatest" %%% "scalatest" % "3.0.4" % "test",
       scoverage.ScoverageKeys.coverageMinimum := 96,
       scoverage.ScoverageKeys.coverageFailOnMinimum := false)
     .jsSettings(
@@ -107,7 +107,6 @@ def updateWebsiteTag =
 
 lazy val commonSettings = Seq(
   scalaVersion := "2.12.5",
-  // crossScalaVersions := Seq("2.11.12", "2.12.4"),
   organization := "com.github.fwbrasil.arrows",
   EclipseKeys.eclipseOutput := Some("bin"),
   scalacOptions ++= Seq(
