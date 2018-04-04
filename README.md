@@ -1,9 +1,8 @@
 # Arrows - High-performance Arrow and Task in Scala
-----------------------------------------------------
 
 This library provides `Arrow` and `Task` implementations in two flavors:
 
-### `arrows-stdlib`: built on top of the Scala Future, without external dependencies. This module also provides ScalaJS artifacts.
+- `arrows-stdlib`: built on top of the Scala Future, without external dependencies. This module also provides ScalaJS artifacts.
 
 ```
 libraryDependencies ++= Seq(
@@ -11,7 +10,7 @@ libraryDependencies ++= Seq(
 )
 ```
 
-### `arrows-twitter`: built on top of the Twitter Future with the `twitter-util` dependency.
+- `arrows-twitter`: built on top of the Twitter Future with the `twitter-util` dependency.
 
 ```
 libraryDependencies ++= Seq(
