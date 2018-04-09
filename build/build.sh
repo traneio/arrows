@@ -25,7 +25,7 @@ then
         git reset --hard origin/master
         git push --delete origin website || true
 
-        sbt ++2.12.5 '+release with-defaults'
+        sbt ++2.12.5 'release cross with-defaults'
     elif [[ $TRAVIS_BRANCH == "master" ]]
     then
         $SBT_CMD
