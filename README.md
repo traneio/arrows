@@ -1,5 +1,12 @@
 # Arrows - High-performance Arrow and Task in Scala
 
+[![Build Status](https://travis-ci.org/traneio/arrows.svg?branch=master)](https://travis-ci.org/traneio/arrows)
+[![Codacy Badge](https://api.codacy.com/project/badge/grade/36ab84c7ff43480489df9b7312a4bdc1)](https://www.codacy.com/app/fwbrasil/quill)
+[![codecov.io](https://codecov.io/github/traneio/arrows/coverage.svg?branch=master)](https://codecov.io/github/traneio/arrows?branch=master)
+[![Join the chat at https://gitter.im/traneio/arrows](https://img.shields.io/badge/gitter-join%20chat-green.svg)](https://gitter.im/traneio/arrows?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.trane/arrows_2.12/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.trane/arrows_2.12)
+[![Javadocs](https://www.javadoc.io/badge/io.trane/arrows_2.12.svg)](https://www.javadoc.io/doc/io.trane/arrows_2.12)
+
 This library provides `Arrow` and `Task` implementations in two flavors:
 
 - `arrows-stdlib`: built on top of the Scala Future, without external dependencies. This module also provides ScalaJS artifacts.
