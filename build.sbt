@@ -5,6 +5,7 @@ import sbtrelease.ReleasePlugin
 import pl.project13.scala.sbt.JmhPlugin
 
 enablePlugins(TutPlugin)
+
 scalaVersion := "2.12.5"
 
 lazy val superPure = new org.scalajs.sbtplugin.cross.CrossType {
@@ -41,7 +42,7 @@ lazy val `arrows-stdlib` =
     .settings(
       name := "arrows-stdlib",
       libraryDependencies += "org.scalatest" %%% "scalatest" % "3.0.4" % "test",
-      scoverage.ScoverageKeys.coverageMinimum := 96,
+      scoverage.ScoverageKeys.coverageMinimum := 60,
       scoverage.ScoverageKeys.coverageFailOnMinimum := false)
     .jsSettings(
       coverageExcludedPackages := ".*"
@@ -52,11 +53,13 @@ lazy val `arrows-stdlib-js` = `arrows-stdlib`.js.settings(test := {})
 
 lazy val `arrows-twitter` = project
   .settings(commonSettings)
-  .settings(crossScalaVersions := Seq("2.11.12", "2.12.5"))
   .settings(
+    crossScalaVersions := Seq("2.11.12", "2.12.5"),
     libraryDependencies ++= Seq(
       "com.twitter" %% "util-core" % "18.3.0"
-    )
+    ),
+    scoverage.ScoverageKeys.coverageMinimum := 60,
+    scoverage.ScoverageKeys.coverageFailOnMinimum := false
   )
 
 lazy val scalaz8Effect = 
@@ -110,7 +113,7 @@ def updateWebsiteTag =
   })
 
 lazy val commonSettings = Seq(
-  organization := "com.github.fwbrasil.arrows",
+  organization := "io.trane",
   EclipseKeys.eclipseOutput := Some("bin"),
   scalacOptions ++= Seq(
     // "-Xfatal-warnings",
