@@ -23,7 +23,12 @@ Both implementations have similar behavior, but they mirror the interface of the
 The library is inspired by the paper [Generalizing Monads to Arrows](http://www.cse.chalmers.se/~rjmh/Papers/arrows.pdf). It introduces Arrows as a way to express computations statically. For instance, this monadic computation:
 
 ```scala
-callServiceA.flatMap { r =>
+import com.twitter.util.Future
+
+def callServiceA(i: Int) = Future.value(i * 2) // replace by service call
+def callServiceB(i: Int) = Future.value(i + 1) // replace by service call
+
+callServiceA(1).flatMap { r =>
   callServiceB(r)
 }
 ````
@@ -33,7 +38,14 @@ can't be fully inspected statically. It's possible to determine that `callServic
 Arrows are functions that can be composed and reused for multiple executions:
 
 ```scala
-val myArrow: Arrow[Int, Int] = callServiceA.andThen(callServiceB)
+import arrows.twitter._
+
+val callServiceA = Arrow[Int].map(_ * 2) // replace by service call
+val callServiceB = Arrow[Int].map(_ + 1) // replace by service call
+
+val myArrow: Arrow[Int, Int] = 
+  callServiceA.andThen(callServiceB)
+
 val result: Future[Int] = myArrow.run(1)
 ```
 
@@ -44,12 +56,13 @@ This library takes a different approach. Instead of avoiding `flatMap`s, it intr
 Users can easily express computations that are static using arrows and apply them within `flatMap` functions to produce `Task`s:
 
 ```scala
-val callServiceA: Arrow[Int, Int] = ???
-val callServiceB: Arrow[Int, Int] = ???
-callServiceA.flatMap {
-   case 0 => Task.value(0)
-   case i => callServiceB(i)
-}
+val myArrow =
+  callServiceA.flatMap {
+     case 0 => Task.value(0)
+     case i => callServiceB(i)
+  }
+
+val result: Future[Int] = myArrow.run(1)
 ```
 
 It's a mixed approach: computations that can be easily expressed statically don't need `flatMap` and `Task`, which are normally most of the cases. Only the portion of the computations that require some dynamicity needs to incur the price of using `flatMap` and `Task`.

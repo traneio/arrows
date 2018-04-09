@@ -4,6 +4,8 @@ import scalariform.formatter.preferences._
 import sbtrelease.ReleasePlugin
 import pl.project13.scala.sbt.JmhPlugin
 
+enablePlugins(TutPlugin)
+
 lazy val superPure = new org.scalajs.sbtplugin.cross.CrossType {
   def projectDir(crossBase: File, projectType: String): File =
     projectType match {
@@ -18,6 +20,7 @@ lazy val superPure = new org.scalajs.sbtplugin.cross.CrossType {
 lazy val `arrows` =
   (project in file("."))
     .settings(commonSettings)
+    .settings(`tut-settings`)
     .aggregate(
       `arrows-stdlib-jvm`, 
       `arrows-stdlib-js`,
