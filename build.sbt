@@ -5,6 +5,7 @@ import sbtrelease.ReleasePlugin
 import pl.project13.scala.sbt.JmhPlugin
 
 enablePlugins(TutPlugin)
+scalaVersion := "2.12.5"
 
 lazy val superPure = new org.scalajs.sbtplugin.cross.CrossType {
   def projectDir(crossBase: File, projectType: String): File =
@@ -109,7 +110,6 @@ def updateWebsiteTag =
   })
 
 lazy val commonSettings = Seq(
-  scalaVersion := "2.12.5",
   organization := "com.github.fwbrasil.arrows",
   EclipseKeys.eclipseOutput := Some("bin"),
   scalacOptions ++= Seq(

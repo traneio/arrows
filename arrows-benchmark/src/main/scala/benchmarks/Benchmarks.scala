@@ -19,7 +19,7 @@ abstract class Benchmarks(val dist: List[(Gen.Op, Int)]) {
     if (results.values.toSet.size != 1) {
       tearDown
       val grouped = results.groupBy(_._2).mapValues(_.map(_._1))
-      sys.error(s"One benchmark return a different value. Results: $grouped")
+      sys.error(s"At least one benchmark returned a different value. Results: $grouped")
     }
   }
 
