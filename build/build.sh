@@ -2,7 +2,7 @@
 
 set -e # Any subsequent(*) commands which fail will cause the shell script to exit immediately
 
-SBT_CMD="sbt ++2.12.5 +clean +coverage +test +coverageReport +coverageAggregate tut checkUnformattedFiles"   
+SBT_CMD="sbt ++$TRAVIS_SCALA_VERSION +clean +coverage +test +coverageReport +coverageAggregate tut checkUnformattedFiles"   
 SBT_PUBLISH=" +coverageOff +publish"
 
 if [[ $TRAVIS_PULL_REQUEST == "false" ]]
@@ -25,7 +25,7 @@ then
         git reset --hard origin/master
         git push --delete origin website || true
 
-        sbt ++2.12.5 'release cross with-defaults'
+        sbt ++$TRAVIS_SCALA_VERSION 'release with-defaults'
     elif [[ $TRAVIS_BRANCH == "master" ]]
     then
         $SBT_CMD

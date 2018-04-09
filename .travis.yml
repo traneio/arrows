@@ -3,6 +3,9 @@ branches:
   except:
   - release
   - website
+scala:
+   - 2.11.12
+   - 2.12.5
 script:
 - "./build/build.sh"
 after_success:
