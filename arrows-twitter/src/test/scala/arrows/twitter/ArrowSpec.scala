@@ -238,7 +238,7 @@ class ArrowSpec extends Spec {
     "raiseWithin" - {
       "no timeout" - {
         test(
-          _.raiseWithin(10 millis),
+          _.raiseWithin(30 millis),
           List(
             Return(1) -> Return(1),
             Throw(ex) -> Throw(ex)
@@ -248,7 +248,7 @@ class ArrowSpec extends Spec {
 
       "timeout" - {
         test(
-          _.delayed(10 seconds).raiseWithin(10 millis, ex),
+          _.delayed(10 seconds).raiseWithin(30 millis, ex),
           List(
             Return(1) -> Throw(ex),
             Throw(ex) -> Throw(ex)
@@ -261,7 +261,7 @@ class ArrowSpec extends Spec {
       "no timeout" - {
         "duration" - {
           test(
-            _.within(10 millis),
+            _.within(30 millis),
             List(
               Return(1) -> Return(1),
               Throw(ex) -> Throw(ex)
@@ -270,7 +270,7 @@ class ArrowSpec extends Spec {
         }
         "timer + duration" - {
           test(
-            _.within(timer, 10 millis),
+            _.within(timer, 30 millis),
             List(
               Return(1) -> Return(1),
               Throw(ex) -> Throw(ex)
@@ -279,7 +279,7 @@ class ArrowSpec extends Spec {
         }
         "timer + duration + exception" - {
           test(
-            _.within(timer, 10 millis, ex),
+            _.within(timer, 30 millis, ex),
             List(
               Return(1) -> Return(1),
               Throw(ex) -> Throw(ex)
