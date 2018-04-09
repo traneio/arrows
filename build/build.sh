@@ -2,7 +2,7 @@
 
 set -e # Any subsequent(*) commands which fail will cause the shell script to exit immediately
 
-SBT_CMD="sbt +clean +coverage +test +coverageReport +coverageAggregate tut checkUnformattedFiles"   
+SBT_CMD="sbt ++2.12.5 +clean +coverage +test +coverageReport +coverageAggregate tut checkUnformattedFiles"   
 SBT_PUBLISH="s +coverageOff +publish"
 
 if [[ $TRAVIS_PULL_REQUEST == "false" ]]

@@ -6,8 +6,6 @@ import pl.project13.scala.sbt.JmhPlugin
 
 enablePlugins(TutPlugin)
 
-scalaVersion := "2.12.5"
-
 lazy val superPure = new org.scalajs.sbtplugin.cross.CrossType {
   def projectDir(crossBase: File, projectType: String): File =
     projectType match {
@@ -114,6 +112,7 @@ def updateWebsiteTag =
 
 lazy val commonSettings = Seq(
   organization := "io.trane",
+  scalaVersion := "2.12.5",
   EclipseKeys.eclipseOutput := Some("bin"),
   scalacOptions ++= Seq(
     // "-Xfatal-warnings",
