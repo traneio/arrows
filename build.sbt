@@ -66,7 +66,6 @@ lazy val scalaz8Effect =
 lazy val `arrows-benchmark` = project
   .settings(commonSettings)
   .settings(
-    crossScalaVersions := Seq("2.11.12", "2.12.5"),
     resolvers += Resolver.sonatypeRepo("snapshots"),
     libraryDependencies ++= Seq(
       "io.monix" %% "monix" % "3.0.0-RC1",
