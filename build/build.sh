@@ -25,7 +25,7 @@ then
         git reset --hard origin/master
         git push --delete origin website || true
 
-        sbt ++$TRAVIS_SCALA_VERSION 'clean release with-defaults skip-tests'
+        sbt ++$TRAVIS_SCALA_VERSION 'release with-defaults skip-tests'
     elif [[ $TRAVIS_BRANCH == "master" ]]
     then
         $SBT_CMD
