@@ -163,35 +163,6 @@ lazy val commonSettings = Seq(
   pgpPublicRing := file("local.pubring.gpg"),
   releasePublishArtifactsAction := PgpKeys.publishSigned.value,
   releaseProcess := {
-    // CrossVersion.partialVersion(scalaVersion.value) match {
-    //   case Some((2, 11)) =>
-    //     Seq[ReleaseStep](
-    //       checkSnapshotDependencies,
-    //       inquireVersions,
-    //       runClean,
-    //       setReleaseVersion,
-    //       updateReadmeVersion(_._1),
-    //       commitReleaseVersion,
-    //       updateWebsiteTag,
-    //       tagRelease,
-    //       publishArtifacts,
-    //       setNextVersion,
-    //       updateReadmeVersion(_._2),
-    //       commitNextVersion,
-    //       releaseStepCommand("sonatypeReleaseAll"),
-    //       pushChanges
-    //     )
-    //   case Some((2, 12)) =>
-    //     Seq[ReleaseStep](
-    //       checkSnapshotDependencies,
-    //       inquireVersions,
-    //       runClean,
-    //       setReleaseVersion,
-    //       publishArtifacts,
-    //       releaseStepCommand("sonatypeReleaseAll")
-    //     )
-    //   case _ => Seq[ReleaseStep]()
-    // }
     Seq[ReleaseStep](
       checkSnapshotDependencies,
       inquireVersions,
