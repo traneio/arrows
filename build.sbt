@@ -21,7 +21,6 @@ lazy val `arrows` =
   (project in file("."))
     .settings(commonSettings)
     .settings(`tut-settings`)
-    // .settings(crossScalaVersions := Seq("2.11.12", "2.12.5"))
     .aggregate(
       `arrows-stdlib-jvm`, 
       `arrows-stdlib-js`,
@@ -39,6 +38,7 @@ lazy val `arrows-stdlib` =
   crossProject.crossType(superPure)
     .settings(commonSettings)
     .settings(
+      crossScalaVersions := Seq("2.12.5"),
       name := "arrows-stdlib",
       libraryDependencies += "org.scalatest" %%% "scalatest" % "3.0.4" % "test",
       scoverage.ScoverageKeys.coverageMinimum := 60,
@@ -67,6 +67,7 @@ lazy val scalaz8Effect =
 lazy val `arrows-benchmark` = project
   .settings(commonSettings)
   .settings(
+    crossScalaVersions := Seq("2.12.5"),
     resolvers += Resolver.sonatypeRepo("snapshots"),
     libraryDependencies ++= Seq(
       "io.monix" %% "monix" % "3.0.0-RC1",
