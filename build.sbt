@@ -21,6 +21,7 @@ lazy val `arrows` =
   (project in file("."))
     .settings(commonSettings)
     .settings(`tut-settings`)
+    // .settings(crossScalaVersions := Seq("2.11.12", "2.12.5"))
     .aggregate(
       `arrows-stdlib-jvm`, 
       `arrows-stdlib-js`,
