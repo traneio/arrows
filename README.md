@@ -21,7 +21,7 @@ libraryDependencies ++= Seq(
 
 ```
 libraryDependencies ++= Seq(
-  "io.trane" %% "arrows-twitter" % "0.1.17"
+  "io.trane" %% "arrows-twitter" % "0.1.18-SNAPSHOT"
 )
 ```
 
