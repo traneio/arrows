@@ -173,7 +173,7 @@ lazy val commonSettings = Seq(
       commitReleaseVersion,
       updateWebsiteTag,
       tagRelease,
-      releaseStepCommandAndRemaining("+publish"),
+      releaseStepCommandAndRemaining("+publishSigned"),
       setNextVersion,
       updateReadmeVersion(_._2),
       commitNextVersion,
