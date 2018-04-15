@@ -1,9 +1,9 @@
 # Arrows - High-performance Arrow and Task in Scala
 
-[![Build Status](https://travis-ci.org/traneio/arrows.svg?branch=master)](https://travis-ci.org/traneio/arrows)
+[![Build Status](https://travis-ci.org/traneio/arrows.svg?branch=master)](https://travis-ci.org/traneio/arrows)nchnch
 [![codecov.io](https://codecov.io/github/traneio/arrows/coverage.svg?branch=master)](https://codecov.io/github/traneio/arrows?branch=master)
 [![Join the chat at https://gitter.im/traneio/arrows](https://img.shields.io/badge/gitter-join%20chat-green.svg)](https://gitter.im/traneio/arrows?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.trane/arrows_2.12/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.trane/arrows_2.12)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.trane/arrows_2.12/badge.svg)](http://search.maven.org/#search%7Cga%7C1%7Cio.trane%20arrows)
 [![Javadocs](https://www.javadoc.io/badge/io.trane/arrows_2.12.svg)](https://www.javadoc.io/doc/io.trane/arrows_2.12)
 
 This library provides `Arrow` and `Task` implementations in two flavors:
@@ -12,7 +12,7 @@ This library provides `Arrow` and `Task` implementations in two flavors:
 
 ```
 libraryDependencies ++= Seq(
-  "io.trane" %%% "arrows-stdlib" % "0.1.0-SNAPSHOT"
+  "io.trane" %% "arrows-stdlib" % "0.1.17"
 )
 ```
 
@@ -20,11 +20,11 @@ libraryDependencies ++= Seq(
 
 ```
 libraryDependencies ++= Seq(
-  "io.trane" %% "arrows-twitter" % "0.1.18-SNAPSHOT"
+  "io.trane" %% "arrows-twitter" % "0.1.17"
 )
 ```
 
-Both implementations have similar behavior, but they mirror the interface of the underlying Future to make the migration easier.
+Both implementations have similar behavior, but they mirror the interface of the underlying `Future` to make the migration easier.
 
 The library is inspired by the paper [Generalizing Monads to Arrows](http://www.cse.chalmers.se/~rjmh/Papers/arrows.pdf). It introduces Arrows as a way to express computations statically. For instance, this monadic computation:
 

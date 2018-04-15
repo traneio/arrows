@@ -174,7 +174,7 @@ lazy val commonSettings = Seq(
       tagRelease,
       releaseStepCommandAndRemaining("+publishSigned"),
       setNextVersion,
-      updateReadmeVersion(_._2),
+      // updateReadmeVersion(_._2),
       commitNextVersion,
       releaseStepCommand("sonatypeReleaseAll"),
       pushChanges
