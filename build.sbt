@@ -166,7 +166,7 @@ lazy val commonSettings = Seq(
     Seq[ReleaseStep](
       checkSnapshotDependencies,
       inquireVersions,
-      runClean,
+      releaseStepCommandAndRemaining("+clean"),
       releaseStepCommandAndRemaining("+test"),
       setReleaseVersion,
       updateReadmeVersion(_._1),
