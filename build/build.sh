@@ -26,7 +26,7 @@ then
         # git push --delete origin website || true
 
         echo 'Performing a release'
-        sbt -Djava.specification.version=9.1 'release cross with-defaults'
+        sbt 'release cross with-defaults'
     elif [[ $TRAVIS_BRANCH == "master" ]]
     then
         echo 'Master build'
