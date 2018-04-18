@@ -6,6 +6,8 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.trane/arrows_2.12/badge.svg)](http://search.maven.org/#search%7Cga%7C1%7Cio.trane%20arrows)
 [![Javadocs](https://www.javadoc.io/badge/io.trane/arrows_2.12.svg)](https://www.javadoc.io/doc/io.trane/arrows_2.12)
 
+## Getting started
+
 This library provides `Arrow` and `Task` implementations in two flavors:
 
 `arrows-stdlib`: built on top of the Scala Future, without external dependencies. This module also provides ScalaJS artifacts.
@@ -26,7 +28,9 @@ libraryDependencies ++= Seq(
 
 Both implementations have similar behavior, but they mirror the interface of the underlying `Future` to make the migration easier.
 
-The library is inspired by the paper [Generalizing Monads to Arrows](http://www.cse.chalmers.se/~rjmh/Papers/arrows.pdf). It introduces Arrows as a way to express computations statically. For instance, this monadic computation:
+## Overview
+
+This library is inspired by the paper [Generalizing Monads to Arrows](http://www.cse.chalmers.se/~rjmh/Papers/arrows.pdf), which introduces `Arrow`s as a way to express computations statically. For instance, this monadic computation:
 
 ```scala
 import com.twitter.util.Future
@@ -83,6 +87,136 @@ Additionally, it has a companion object that has methods similar to the ones pro
 
 Static computations expressed using `Arrow`s have better performance since they avoid many allocations at runtime, but `Task` can also be as a standalone solution without using `Arrow` directly. It's equivalent to the `IO` and `Task` implementations provided by libraries like Monix, Scalaz 8, and Cats Effect.
 
-The `Task` interface mirrors the methods provided by `Future`. For more details on the available operations, please see the scaladocs. 
+## Using `Arrow`
 
-**Note that, even though `Task` has an API very similar to `Future`, it has a different execution mechanism. `Future`s are strict and start executing once created. `Task`s only describe computations without running them, and are executed only when the user calls `run`.**
+Unlike the `Task`, `Arrow`'s' companion object has only a few methods to create new instances. `Arrow`s can be created based on an initial identity arrow created through `Arrow.apply`
+
+```scala
+val identityArrow: Arrow[Int, Int] = Arrow[Int]
+```
+
+The identity arrow just returns its input, but is useful as a starting point to compose new arrows:
+
+```scala
+val stringify: Arrow[Int, String] = Arrow[Int].map(_.toString)
+```
+
+Additionaly, `Arrow` provides an `apply` method that produces a `Task`, which is the expected return type of a `flatMap` function:
+
+```scala
+val nonZeroStringify: Arrow[Int, String] =
+  Arrow[Int].flatMap {
+    case i if i < 0 => Task.value("")
+    case i          => stringify(i)
+  }
+```
+
+An interesting scenario is expressing recursion with `Arrow`s. For this purpose, it's possible to use `Arrow.recursive`:
+
+```scala
+val sum =
+  Arrow.recursive[List[Int], Int] { self =>
+    Arrow[List[Int]].flatMap {
+      case Nil          => Task.value(0)
+      case head :: tail => self(tail).map(_ + head)
+    }
+  }
+```
+
+Note that `self` is a reference to the `Arrow` under creation.
+
+Once the arrow is created, it can be reused for multiple runs:
+
+```scala
+val result1: Future[Int] = sum.run(List(1, 2))
+val result2: Future[Int] = sum.run(List(1, 2, 4))
+```
+
+** For best performance, keep arrows as `val`s in a scope that allows reuse **
+
+## Using `Task`
+
+`Task` can be used as a standalone solution similar to the `IO` and `Task` implementations in libraries like Monix, Scalaz 8, and Cats Effect. Their interface mirror the interface of the underlying `Future` implementation.
+
+Even though `Task` has an interface very similar to `Future`, it has a different execution mechanism. `Future`s are strict and start to execute once created. `Task` only describes a computation that will eventually execute when executed:
+
+```scala
+val f = Future.value(1).map(println) // prints 1 immediatelly
+val t = Task.value(1).map(println) // doesn't print anything during Task creation
+t.run // prints 1
+```
+
+Tricks like saving `Future`s with `val`s for parallelism doesn't work with `Task`:
+
+```scala
+
+val f1: Future[Int] = ??? // replace by an async op
+val f2: Future[Int] = ??? // replace by an async op
+
+// at this point both futures are running in parallel, even though the second future is within the `flatMap` function:
+f1.flatMap { i =>
+  f2.map(_ + i)
+}
+
+val t1: Task[Int] = ??? // replace by an async op
+val t2: Task[Int] = ??? // replace by an async op
+
+// at this point t1 and t2 are not running, so t2 will run only when t1 finishes and the `flatMap` function is called:
+t1.flatMap { i =>
+  t2.map(_ + i)
+}
+
+```
+
+
+## Migrating from `Future`
+
+Given that `Task` has an interface similar to `Future`, it's possible to use [Scalafix](https://scalacenter.github.io/scalafix) to do most of the migration. Suggested steps:
+
+### 1. Install Scalafix
+
+See the [Scalafix documentation](https://scalacenter.github.io/scalafix/docs/users/installation) for all installation options. An easy way is adding the scalafix plugin to your sbt configuration:
+
+```sh
+echo -e '\n\n addSbtPlugin("ch.epfl.scala" % "sbt-scalafix" % "0.5.10")' >> project/plugins.sbt
+```
+
+### 2. Run a symbol rewrite from `Future` to `Task`
+
+```sh
+# for the Twitter Future
+sbt -J-XX:MaxMetaspaceSize=512m 'scalafixCli --rules replace:com.twitter.util.Future/arrows.twitter.Task
+
+# for the Scala Future
+sbt -J-XX:MaxMetaspaceSize=512m 'scalafixCli --rules replace:scala.concurrent.Future/arrows.stdlib.Task
+```
+
+The metaspace option is important to run scalafix since sbt's default is too low.
+
+### 3. Review changes
+
+Look for places where the change from strict to lazy might change the behavior. See the "Using `Task`" section to understand the difference.
+
+At this point, it's reasonable to pause the migration and test the system to find potential issues with the migration.
+
+### 4. Fix deprecation warnings
+
+There are deprecated implicit conversions from/to `Arrow`/`Future`. They were introduced to make the migration easier. Fix the deprecation warnings by calling the conversion methods directly and making sure that `Future`s are created within the `Task` execution, not outside.
+
+### 5. Identify arrows
+
+As an additional step for even better performance, identify methods that can become `Arrow`s and convert them.
+
+## Maintainers
+
+- @fwbrasil (creator)
+
+## Code of Conduct
+
+Please note that this project is released with a Contributor Code of Conduct. By participating in this project you agree to abide by its terms. See [CODE_OF_CONDUCT.md](https://github.com/traneio/arrows/blob/master/CODE_OF_CONDUCT.md) for details.
+
+## License
+
+See the [LICENSE](https://github.com/traneio/arrows/blob/master/LICENSE.txt) file for details.
+
+
