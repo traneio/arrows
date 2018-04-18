@@ -1,8 +1,7 @@
 package benchmarks
 
-import scalaz._
-import scalaz.effect.IO
-import org.openjdk.jmh.annotations.Benchmark
+import scalaz.effect._
+import org.openjdk.jmh.annotations._
 import scala.util.Try
 import scalaz.effect.RTS
 
@@ -17,25 +16,26 @@ trait Scalaz {
     Try(rts.unsafePerformIO(gen(1)))
   }
 
-  override def tearDown() =
+  @TearDown
+  def shutdown() =
     rts.threadPool.shutdown()
 }
 
-object ScalazGen extends Gen[Int => IO[Int]] {
+object ScalazGen extends Gen[Int => IO[Throwable, Int]] {
 
   def sync = IO.now _
 
   def async(schedule: Runnable => Unit) =
-    v => IO.async(cb => schedule(() => cb(\/-(v))))
+    v => IO.async(cb => schedule(() => cb(ExitResult.Completed(v))))
 
   def failure(ex: Throwable) = _ => IO.fail(ex)
 
-  def map(t: Int => IO[Int], f: Int => Int) =
+  def map(t: Int => IO[Throwable, Int], f: Int => Int) =
     t.andThen(_.map(f))
 
-  def flatMap(t: Int => IO[Int], f: Int => IO[Int]) =
+  def flatMap(t: Int => IO[Throwable, Int], f: Int => IO[Throwable, Int]) =
     t.andThen(_.flatMap(f))
 
-  def handle(t: Int => IO[Int], i: Int) =
+  def handle(t: Int => IO[Throwable, Int], i: Int) =
     t.andThen(_.catchAll(_ => IO.now(i)))
 }

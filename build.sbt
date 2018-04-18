@@ -62,7 +62,7 @@ lazy val `arrows-twitter` = project
   )
 
 lazy val scalaz8Effect = 
-  ProjectRef(uri("https://github.com/scalaz/scalaz.git#fcd2d2b320770e2a74e1fb16499f9ab6a402d608"), "effectJVM")
+  ProjectRef(uri("https://github.com/scalaz/scalaz.git#9053bbaf752728de0d8b35a9ef319d9327ed6d77"), "effectJVM")
 
 lazy val `arrows-benchmark` = project
   .settings(commonSettings)

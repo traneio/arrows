@@ -80,7 +80,7 @@ class AsyncSuccessOnlyBenchmarks
   with ScalaFuture
   with TwitterFuture
   with TraneIO
-// with Scalaz bug https://github.com/scalaz/scalaz/issues/1665
+  with Scalaz
 
 class AsyncWithFailuresBenchmarks
   extends Benchmarks(
@@ -100,4 +100,4 @@ class AsyncWithFailuresBenchmarks
   with ScalaFuture
   with TwitterFuture
   with TraneIO
-// with Scalaz bug https://github.com/scalaz/scalaz/issues/1665
+  with Scalaz
