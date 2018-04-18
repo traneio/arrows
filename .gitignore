@@ -11,5 +11,3 @@ local.*
 quill_test.db
 Bug.scala
 *.gz
-**/jmh-result.csv
-**/*.csv
