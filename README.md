@@ -43,7 +43,7 @@ callServiceA(1).flatMap { r =>
 }
 ````
 
-can't be fully inspected statically. It's possible to determine that `callServiceA` will be invoked, but only after running `callServiceA` it's possible to determine that `callServiceB` will be invoked since there's a data dependency.
+can't be fully inspected statically. It's possible to determine that `callServiceA` will be invoked, but only after running `callServiceA` it's possible to identify that `callServiceB` will be invoked since there's a data dependency.
 
 Arrows are functions that can be composed and reused for multiple executions:
 
@@ -132,7 +132,7 @@ val result1: Future[Int] = sum.run(List(1, 2))
 val result2: Future[Int] = sum.run(List(1, 2, 4))
 ```
 
-*** For best performance, keep arrows as `val`s in a scope that allows reuse ***
+For best performance, keep arrows as `val`s in a scope that allows reuse
 
 ## Using `Task`
 
