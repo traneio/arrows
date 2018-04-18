@@ -173,7 +173,7 @@ t1.flatMap { i =>
 
 Given that `Task` has an interface similar to `Future`, it's possible to use [Scalafix](https://scalacenter.github.io/scalafix) to do most of the migration. Suggested steps:
 
-### 1. Install Scalafix
+#### 1. Install Scalafix
 
 See the [Scalafix documentation](https://scalacenter.github.io/scalafix/docs/users/installation) for all installation options. An easy way is adding the scalafix plugin to your sbt configuration:
 
@@ -181,7 +181,7 @@ See the [Scalafix documentation](https://scalacenter.github.io/scalafix/docs/use
 echo -e '\n\n addSbtPlugin("ch.epfl.scala" % "sbt-scalafix" % "0.5.10")' >> project/plugins.sbt
 ```
 
-### 2. Run a symbol rewrite from `Future` to `Task`
+#### 2. Run a symbol rewrite from `Future` to `Task`
 
 ```sh
 # for the Twitter Future
@@ -193,17 +193,17 @@ sbt -J-XX:MaxMetaspaceSize=512m 'scalafixCli --rules replace:scala.concurrent.Fu
 
 The metaspace option is important to run scalafix since sbt's default is too low.
 
-### 3. Review changes
+#### 3. Review changes
 
 Look for places where the change from strict to lazy might change the behavior. See the "Using `Task`" section to understand the difference.
 
 At this point, it's reasonable to pause the migration and test the system to find potential issues with the migration.
 
-### 4. Fix deprecation warnings
+#### 4. Fix deprecation warnings
 
 There are deprecated implicit conversions from/to `Arrow`/`Future`. They were introduced to make the migration easier. Fix the deprecation warnings by calling the conversion methods directly and making sure that `Future`s are created within the `Task` execution, not outside.
 
-### 5. Identify arrows
+#### 5. Identify arrows
 
 As an additional step for even better performance, identify methods that can become `Arrow`s and convert them.
 
