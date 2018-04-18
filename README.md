@@ -83,13 +83,13 @@ It's a mixed approach: computations that can be easily expressed statically don'
 type Task[+T] = Arrow[Unit, T]
 ```
 
-Additionally, it has a companion object that has methods similar to the ones provided by the `Future` companion object.
+Additionally, it has a companion object that has methods similar to the ones provided by `Future`.
 
 Static computations expressed using `Arrow`s have better performance since they avoid many allocations at runtime, but `Task` can also be as a standalone solution without using `Arrow` directly. It's equivalent to the `IO` and `Task` implementations provided by libraries like Monix, Scalaz 8, and Cats Effect.
 
 ## Using `Arrow`
 
-Unlike the `Task`, `Arrow`'s' companion object has only a few methods to create new instances. `Arrow`s can be created based on an initial identity arrow created through `Arrow.apply`
+Unlike the `Task`, `Arrow`'s' companion object has only a few methods to create new instances. `Arrow`s can be created based on an initial identity arrow through `Arrow.apply`
 
 ```scala
 val identityArrow: Arrow[Int, Int] = Arrow[Int]
@@ -111,7 +111,7 @@ val nonZeroStringify: Arrow[Int, String] =
   }
 ```
 
-An interesting scenario is expressing recursion with `Arrow`s. For this purpose, it's possible to use `Arrow.recursive`:
+An interesting scenario is recursion with `Arrow`. For this purpose, it's possible to use `Arrow.recursive`:
 
 ```scala
 val sum =
@@ -132,13 +132,13 @@ val result1: Future[Int] = sum.run(List(1, 2))
 val result2: Future[Int] = sum.run(List(1, 2, 4))
 ```
 
-** For best performance, keep arrows as `val`s in a scope that allows reuse **
+*** For best performance, keep arrows as `val`s in a scope that allows reuse ***
 
 ## Using `Task`
 
 `Task` can be used as a standalone solution similar to the `IO` and `Task` implementations in libraries like Monix, Scalaz 8, and Cats Effect. Their interface mirror the interface of the underlying `Future` implementation.
 
-Even though `Task` has an interface very similar to `Future`, it has a different execution mechanism. `Future`s are strict and start to execute once created. `Task` only describes a computation that will eventually execute when executed:
+Even though `Task` is similar to `Future`, it has a different execution mechanism. `Future`s are strict and start to execute once created. `Task` only describes a computation that will eventually execute when executed:
 
 ```scala
 val f = Future.value(1).map(println) // prints 1 immediatelly
@@ -150,18 +150,20 @@ Tricks like saving `Future`s with `val`s for parallelism doesn't work with `Task
 
 ```scala
 
-val f1: Future[Int] = ??? // replace by an async op
-val f2: Future[Int] = ??? // replace by an async op
+val f1: Future[Int] = Future.value(1) // replace by an async op
+val f2: Future[Int] = Future.value(2) // replace by an async op
 
-// at this point both futures are running in parallel, even though the second future is within the `flatMap` function:
+// at this point both futures are running in parallel, even though
+// the second future is only used within the `flatMap` function:
 f1.flatMap { i =>
   f2.map(_ + i)
 }
 
-val t1: Task[Int] = ??? // replace by an async op
-val t2: Task[Int] = ??? // replace by an async op
+val t1: Task[Int] = Future.value(1) // replace by an async op
+val t2: Task[Int] = Future.value(2) // replace by an async op
 
-// at this point t1 and t2 are not running, so t2 will run only when t1 finishes and the `flatMap` function is called:
+// at this point t1 and t2 are not running, so t2 will only run 
+// when t1 finishes and the `flatMap` function is called:
 t1.flatMap { i =>
   t2.map(_ + i)
 }
@@ -210,6 +212,7 @@ As an additional step for even better performance, identify methods that can bec
 ## Maintainers
 
 - @fwbrasil (creator)
+- you? :)
 
 ## Code of Conduct
 
