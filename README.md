@@ -246,7 +246,8 @@ It's easy to create new benchmarks with a different configurations. Please feel 
 
 #### Scala Future x Arrows Stdlib
 
-<td colspan=2>Async benchmarks
+Async benchmarks
+
 Throughput (ops/s) | Allocation rate (B/op)
 :-----------------:|:----------------------:
 ![](https://raw.githubusercontent.com/traneio/arrows/master/arrows-benchmark/results/async-thrpt-scala.png?raw=true) | ![](https://raw.githubusercontent.com/traneio/arrows/master/arrows-benchmark/results/async-alloc-scala.png?raw=true)
@@ -266,6 +267,7 @@ Throughput (ops/s) | Allocation rate (B/op)
 ![](https://raw.githubusercontent.com/traneio/arrows/master/arrows-benchmark/results/async-thrpt-twitter.png?raw=true) | ![](https://raw.githubusercontent.com/traneio/arrows/master/arrows-benchmark/results/async-alloc-twitter.png?raw=true)
 
 Sync benchmarks
+
 Throughput (ops/s) | Allocation rate (B/op)
 :-----------------:|:----------------------:
 ![](https://raw.githubusercontent.com/traneio/arrows/master/arrows-benchmark/results/sync-thrpt-twitter.png?raw=true) | ![](https://raw.githubusercontent.com/traneio/arrows/master/arrows-benchmark/results/sync-alloc-twitter.png?raw=true)
