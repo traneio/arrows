@@ -89,7 +89,7 @@ Static computations expressed using `Arrow`s have better performance since they 
 
 ## Using `Arrow`
 
-Unlike the `Task`, `Arrow`'s' companion object has only a few methods to create new instances. `Arrow`s can be created based on an initial identity arrow through `Arrow.apply`
+Unlike the `Task`, `Arrow`'s' companion object has only a few methods to create new instances. `Arrow`s can be created based on an initial identity arrow through `Arrow.apply`:
 
 ```scala
 val identityArrow: Arrow[Int, Int] = Arrow[Int]
@@ -101,7 +101,7 @@ The identity arrow just returns its input, but is useful as a starting point to 
 val stringify: Arrow[Int, String] = Arrow[Int].map(_.toString)
 ```
 
-Additionaly, `Arrow` provides an `apply` method that produces a `Task`, which is the expected return type of a `flatMap` function:
+Additionally, `Arrow` provides an `apply` method that produces a `Task`, which is the expected return type of a `flatMap` function:
 
 ```scala
 val nonZeroStringify: Arrow[Int, String] =
@@ -193,11 +193,11 @@ sbt -J-XX:MaxMetaspaceSize=512m 'scalafixCli --rules replace:com.twitter.util.Fu
 sbt -J-XX:MaxMetaspaceSize=512m 'scalafixCli --rules replace:scala.concurrent.Future/arrows.stdlib.Task
 ```
 
-The metaspace option is important to run scalafix since sbt's default is too low.
+The metaspace option is important to run Scalafix since SBT's default is too low.
 
 #### 3. Review changes
 
-Look for places where the change from strict to lazy might change the behavior. See the "Using `Task`" section to understand the difference.
+Look for places where the change from strict to lazy might change the behavior. See the ["Using `Task`"](#using-task) section to understand the difference.
 
 At this point, it's reasonable to pause the migration and test the system to find potential issues with the migration.
 
@@ -209,6 +209,77 @@ There are deprecated implicit conversions from/to `Arrow`/`Future`. They were in
 
 As an additional step for even better performance, identify methods that can become `Arrow`s and convert them.
 
+## Benchmarks
+
+### Overview
+
+The `arrows-benchamrk` sub-project has a set of benchmarks that compare this library to other similar solutions. 
+
+Instead of benchmarking specific features in isolation, these benchmarks generate a long chain of transformations using different types of operations like async boudaries, `flatMap`s, etc. This approach tries to simulate how the implementations would behave in a real-world scenario. Benchmarks that only test one or two operations in isolation are skewed since they make the work of the JIT (Just In Time Compiler) much easier, which is something that rarely happens in real-world scenarios. 
+
+For instance, if only one or two operations are used, it's possible that only one of two implementations of a class are loaded so the JIT can easily compile to native code using monomorphic or bimorphic calls, which are much more efficient. Once the benchmark involves more than two operations, the JIT might have to use mehamorphic calls. The same happens with other JIT optimizations like inlining and dead code elimination.
+
+The benchmarks can be executed using a shell script:
+
+```
+arrows> ./benchmark.sh
+```
+
+It'll output the results and csv files for them.
+
+### Benchmark classes
+
+All benchmarks are based on the same mechanism that gerates transformation chains, but they have different parameters that determine the kind of operations to be used. Currently, there are four classes with different configurations:
+
+| Class                         | Async boundaries | Failures | Error handling | Map | FlatMap | 
+| :----------------------------:| :--------------: | :------: | :------------: | :-: | :-----: | 
+| `SyncSuccessOnlyBenchmarks`   |                  |          |                | X   | X       | 
+| `SyncWithFailuresBenchmarks`  |                  | X        | X              | X   | X       | 
+| `AsyncSuccessOnlyBenchmarks`  | X                |          |                | X   | X       | 
+| `AsyncWithFailuresBenchmarks` | X                | X        | X              | X   | X       | 
+
+It's easy to create new benchmarks with a different configurations. Please feel free to submit a pull request if you'd like to benchmark other combinations of operations.
+
+### Benchmark results
+
+`Arrow` and `Task` are implemented on top of a specific `Future`. They have considerable better throughput and and smaller memory footprint if compared to their `Future` counterparts. When compared to other libraries, `Arrow` tends to have better performance than other solutions, but `Task` is only slightly better. That happens because the other libraries are also well optimized.
+
+#### Scala Future x Arrows Stdlib
+
+Async benchmarks
+| Throughput (ops/s)                                           | Allocation rate (B/op)                                       |
+|:------------------------------------------------------------:|:------------------------------------------------------------:|
+| ![](arrows-benchmark/results/async-thrpt-scala.png?raw=true) | ![](arrows-benchmark/results/async-alloc-scala.png?raw=true) |
+
+Sync benchmarks
+| Throughput (ops/s)                                           | Allocation rate (B/op)                                       |
+|:------------------------------------------------------------:|:------------------------------------------------------------:|
+| ![](arrows-benchmark/results/sync-thrpt-scala.png?raw=true)  | ![](arrows-benchmark/results/sync-alloc-scala.png?raw=true)  |
+
+#### Twitter Future x Arrows Twitter
+
+Async benchmarks
+| Throughput (ops/s)                                             | Allocation rate (B/op)                                         |
+|:--------------------------------------------------------------:|:--------------------------------------------------------------:|
+| ![](arrows-benchmark/results/async-thrpt-twitter.png?raw=true) | ![](arrows-benchmark/results/async-alloc-twitter.png?raw=true) |
+
+Sync benchmarks
+| Throughput (ops/s)                                            | Allocation rate (B/op)                                         |
+|:-------------------------------------------------------------:|:--------------------------------------------------------------:|
+| ![](arrows-benchmark/results/sync-thrpt-twitter.png?raw=true) | ![](arrows-benchmark/results/sync-alloc-twitter.png?raw=true)  |
+
+#### Other libraries x Arrows
+
+Async benchmarks
+| Throughput (ops/s)                                            | Allocation rate (B/op)                                        |
+|:-------------------------------------------------------------:|:-------------------------------------------------------------:|
+| ![](arrows-benchmark/results/async-thrpt-others.png?raw=true) | ![](arrows-benchmark/results/async-alloc-others.png?raw=true) |
+
+Sync benchmarks
+| Throughput (ops/s)                                           | Allocation rate (B/op)                                        |
+|:------------------------------------------------------------:|:-------------------------------------------------------------:|
+| ![](arrows-benchmark/results/sync-thrpt-others.png?raw=true) | ![](arrows-benchmark/results/sync-alloc-others.png?raw=true)  |
+
 ## Maintainers
 
 - @fwbrasil (creator)
@@ -216,7 +287,7 @@ As an additional step for even better performance, identify methods that can bec
 
 ## Code of Conduct
 
-Please note that this project is released with a Contributor Code of Conduct. By participating in this project you agree to abide by its terms. See [CODE_OF_CONDUCT.md](https://github.com/traneio/arrows/blob/master/CODE_OF_CONDUCT.md) for details.
+Please note that this project is released with a Contributor Code of Conduct. By participating in this project, you agree to abide by its terms. See [CODE_OF_CONDUCT.md](https://github.com/traneio/arrows/blob/master/CODE_OF_CONDUCT.md) for details.
 
 ## License
 
