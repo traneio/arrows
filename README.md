@@ -175,11 +175,11 @@ t1.flatMap { i =>
 
 ### Overview
 
-The `arrows-benchamrk` sub-project has a set of benchmarks that compare this library to other similar solutions. 
+The `arrows-benchmark` sub-project has a set of benchmarks that compare this library to other similar solutions. 
 
-Instead of benchmarking specific features in isolation, these benchmarks generate a long chain of transformations using different types of operations like async boudaries, `flatMap`s, etc. This approach tries to simulate how the implementations would behave in a real-world scenario. Benchmarks that only test one or two operations in isolation are skewed since they make the work of the JIT (Just In Time Compiler) much easier, which is something that rarely happens in practice. 
+Instead of benchmarking specific features in isolation, these benchmarks generate a long chain of transformations using different types of operations like async boundaries, `flatMap`s, etc. This approach tries to simulate how the implementations would behave in a real-world scenario. Benchmarks that only test one or two operations in isolation are skewed since they make the work of the JIT (Just In Time Compiler) much easier, which is something that rarely happens in practice. 
 
-For instance, if only one or two operations are used, it's possible that only one of two implementations of a class are loaded so the JIT can easily compile to native code using monomorphic or bimorphic calls, which are much more efficient. Once the benchmark involves more than two operations, the JIT might have to use mehamorphic calls. The same happens with other JIT optimizations like inlining and dead code elimination.
+For instance, if only one or two operations are used, it's possible that only one of two implementations of a class are loaded so the JIT can easily compile to native code using monomorphic or bimorphic calls, which are much more efficient. Once the benchmark involves more than two operations, the JIT might have to use megamorphic calls. The same happens with other JIT optimizations like inlining and dead code elimination.
 
 The benchmarks can be executed using a shell script:
 
@@ -191,7 +191,7 @@ It'll output the results and csv files for them.
 
 ### Benchmark classes
 
-All benchmarks are based on the same mechanism that gerates transformation chains, but they have different parameters that determine the kind of operations to be used. Currently, there are four classes with different configurations:
+All benchmarks are based on the same mechanism that generates transformation chains, but they have different parameters that determine the kind of operations to be used. Currently, there are four classes with different configurations:
 
 | Class                         | Async boundaries | Failures | Error handling | Map | FlatMap | 
 | :----------------------------:| :--------------: | :------: | :------------: | :-: | :-----: | 
@@ -298,5 +298,3 @@ Please note that this project is released with a Contributor Code of Conduct. By
 ## License
 
 See the [LICENSE](https://github.com/traneio/arrows/blob/master/LICENSE.txt) file for details.
-
-
