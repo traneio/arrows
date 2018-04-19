@@ -246,39 +246,45 @@ It's easy to create new benchmarks with a different configurations. Please feel 
 
 #### Scala Future x Arrows Stdlib
 
-|            Async benchmarks                 |
-| Throughput (ops/s) | Allocation rate (B/op) |
-|:------------------:|:----------------------:|
-| ![](https://raw.githubusercontent.com/traneio/arrows/master/arrows-benchmark/results/async-thrpt-scala.png?raw=true) | ![](https://raw.githubusercontent.com/traneio/arrows/master/arrows-benchmark/results/async-alloc-scala.png?raw=true) |
+Async benchmarks
+
+Throughput (ops/s) | Allocation rate (B/op)
+:-----------------:|:----------------------:
+![](https://raw.githubusercontent.com/traneio/arrows/master/arrows-benchmark/results/async-thrpt-scala.png?raw=true) | ![](https://raw.githubusercontent.com/traneio/arrows/master/arrows-benchmark/results/async-alloc-scala.png?raw=true)
 
 Sync benchmarks
-| Throughput (ops/s)                                           | Allocation rate (B/op)                                       |
-|:------------------------------------------------------------:|:------------------------------------------------------------:|
-| ![](arrows-benchmark/results/sync-thrpt-scala.png?raw=true)  | ![](arrows-benchmark/results/sync-alloc-scala.png?raw=true)  |
+
+Throughput (ops/s) | Allocation rate (B/op)
+:-----------------:|:----------------------:
+![](https://raw.githubusercontent.com/traneio/arrows/master/arrows-benchmark/results/sync-thrpt-scala.png?raw=true) | ![](https://raw.githubusercontent.com/traneio/arrows/master/arrows-benchmark/results/sync-alloc-scala.png?raw=true)
 
 #### Twitter Future x Arrows Twitter
 
 Async benchmarks
-| Throughput (ops/s)                                             | Allocation rate (B/op)                                         |
-|:--------------------------------------------------------------:|:--------------------------------------------------------------:|
-| ![](arrows-benchmark/results/async-thrpt-twitter.png?raw=true) | ![](arrows-benchmark/results/async-alloc-twitter.png?raw=true) |
+
+Throughput (ops/s) | Allocation rate (B/op)
+:-----------------:|:----------------------:
+![](https://raw.githubusercontent.com/traneio/arrows/master/arrows-benchmark/results/async-thrpt-twitter.png?raw=true) | ![](https://raw.githubusercontent.com/traneio/arrows/master/arrows-benchmark/results/async-alloc-twitter.png?raw=true)
 
 Sync benchmarks
-| Throughput (ops/s)                                            | Allocation rate (B/op)                                         |
-|:-------------------------------------------------------------:|:--------------------------------------------------------------:|
-| ![](arrows-benchmark/results/sync-thrpt-twitter.png?raw=true) | ![](arrows-benchmark/results/sync-alloc-twitter.png?raw=true)  |
+
+Throughput (ops/s) | Allocation rate (B/op)
+:-----------------:|:----------------------:
+![](https://raw.githubusercontent.com/traneio/arrows/master/arrows-benchmark/results/sync-thrpt-twitter.png?raw=true) | ![](https://raw.githubusercontent.com/traneio/arrows/master/arrows-benchmark/results/sync-alloc-twitter.png?raw=true)
 
 #### Other libraries x Arrows
 
 Async benchmarks
-| Throughput (ops/s)                                            | Allocation rate (B/op)                                        |
-|:-------------------------------------------------------------:|:-------------------------------------------------------------:|
-| ![](arrows-benchmark/results/async-thrpt-others.png?raw=true) | ![](arrows-benchmark/results/async-alloc-others.png?raw=true) |
+
+Throughput (ops/s) | Allocation rate (B/op)
+:-----------------:|:----------------------:
+![](https://raw.githubusercontent.com/traneio/arrows/master/arrows-benchmark/results/async-thrpt-others.png?raw=true) | ![](https://raw.githubusercontent.com/traneio/arrows/master/arrows-benchmark/results/async-alloc-others.png?raw=true)
 
 Sync benchmarks
-| Throughput (ops/s)                                           | Allocation rate (B/op)                                        |
-|:------------------------------------------------------------:|:-------------------------------------------------------------:|
-| ![](arrows-benchmark/results/sync-thrpt-others.png?raw=true) | ![](arrows-benchmark/results/sync-alloc-others.png?raw=true)  |
+
+Throughput (ops/s) | Allocation rate (B/op)
+:-----------------:|:----------------------:
+![](https://raw.githubusercontent.com/traneio/arrows/master/arrows-benchmark/results/sync-thrpt-others.png?raw=true) | ![](https://raw.githubusercontent.com/traneio/arrows/master/arrows-benchmark/results/sync-alloc-others.png?raw=true)
 
 ## Maintainers
 
