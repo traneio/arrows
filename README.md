@@ -30,7 +30,7 @@ Both implementations have similar behavior, but they mirror the interface of the
 
 ## Overview
 
-This library is inspired by the paper [Generalizing Monads to Arrows](http://www.cse.chalmers.se/~rjmh/Papers/arrows.pdf), which introduces `Arrow`s as a way to express computations statically. For instance, this monadic computation:
+The `Arrow` and `Task` implementations are inspired by the paper [Generalizing Monads to Arrows](http://www.cse.chalmers.se/~rjmh/Papers/arrows.pdf), which introduces `Arrow`s as a way to express computations statically. For instance, this monadic computation:
 
 ```scala
 import com.twitter.util.Future
@@ -89,7 +89,7 @@ Static computations expressed using `Arrow`s have better performance since they 
 
 ## Using `Arrow`
 
-Unlike the `Task`, `Arrow`'s' companion object has only a few methods to create new instances. `Arrow`s can be created based on an initial identity arrow through `Arrow.apply`:
+Unlike `Task`, `Arrow`'s' companion object has only a few methods to create new instances. `Arrow`s can be created based on an initial identity arrow through `Arrow.apply`:
 
 ```scala
 val identityArrow: Arrow[Int, Int] = Arrow[Int]
@@ -136,7 +136,7 @@ For best performance, keep arrows as `val`s in a scope that allows reuse
 
 ## Using `Task`
 
-`Task` can be used as a standalone solution similar to the `IO` and `Task` implementations in libraries like Monix, Scalaz 8, and Cats Effect. Their interface mirror the interface of the underlying `Future` implementation.
+`Task` can be used as a standalone solution similar to the `IO` and `Task` implementations in libraries like Monix, Scalaz 8, and Cats Effect. Their interface mirror the interface of the underlying `Future`.
 
 Even though `Task` is similar to `Future`, it has a different execution mechanism. `Future`s are strict and start to execute once created. `Task` only describes a computation that will eventually execute when executed:
 
@@ -171,51 +171,13 @@ t1.flatMap { i =>
 ```
 
 
-## Migrating from `Future`
-
-Given that `Task` has an interface similar to `Future`, it's possible to use [Scalafix](https://scalacenter.github.io/scalafix) to do most of the migration. Suggested steps:
-
-#### 1. Install Scalafix
-
-See the [Scalafix documentation](https://scalacenter.github.io/scalafix/docs/users/installation) for all installation options. An easy way is adding the scalafix plugin to your sbt configuration:
-
-```sh
-echo -e '\n\n addSbtPlugin("ch.epfl.scala" % "sbt-scalafix" % "0.5.10")' >> project/plugins.sbt
-```
-
-#### 2. Run a symbol rewrite from `Future` to `Task`
-
-```sh
-# for the Twitter Future
-sbt -J-XX:MaxMetaspaceSize=512m 'scalafixCli --rules replace:com.twitter.util.Future/arrows.twitter.Task
-
-# for the Scala Future
-sbt -J-XX:MaxMetaspaceSize=512m 'scalafixCli --rules replace:scala.concurrent.Future/arrows.stdlib.Task
-```
-
-The metaspace option is important to run Scalafix since SBT's default is too low.
-
-#### 3. Review changes
-
-Look for places where the change from strict to lazy might change the behavior. See the ["Using `Task`"](#using-task) section to understand the difference.
-
-At this point, it's reasonable to pause the migration and test the system to find potential issues with the migration.
-
-#### 4. Fix deprecation warnings
-
-There are deprecated implicit conversions from/to `Arrow`/`Future`. They were introduced to make the migration easier. Fix the deprecation warnings by calling the conversion methods directly and making sure that `Future`s are created within the `Task` execution, not outside.
-
-#### 5. Identify arrows
-
-As an additional step for even better performance, identify methods that can become `Arrow`s and convert them.
-
 ## Benchmarks
 
 ### Overview
 
 The `arrows-benchamrk` sub-project has a set of benchmarks that compare this library to other similar solutions. 
 
-Instead of benchmarking specific features in isolation, these benchmarks generate a long chain of transformations using different types of operations like async boudaries, `flatMap`s, etc. This approach tries to simulate how the implementations would behave in a real-world scenario. Benchmarks that only test one or two operations in isolation are skewed since they make the work of the JIT (Just In Time Compiler) much easier, which is something that rarely happens in real-world scenarios. 
+Instead of benchmarking specific features in isolation, these benchmarks generate a long chain of transformations using different types of operations like async boudaries, `flatMap`s, etc. This approach tries to simulate how the implementations would behave in a real-world scenario. Benchmarks that only test one or two operations in isolation are skewed since they make the work of the JIT (Just In Time Compiler) much easier, which is something that rarely happens in practice. 
 
 For instance, if only one or two operations are used, it's possible that only one of two implementations of a class are loaded so the JIT can easily compile to native code using monomorphic or bimorphic calls, which are much more efficient. Once the benchmark involves more than two operations, the JIT might have to use mehamorphic calls. The same happens with other JIT optimizations like inlining and dead code elimination.
 
@@ -242,7 +204,7 @@ It's easy to create new benchmarks with a different configurations. Please feel 
 
 ### Benchmark results
 
-`Arrow` and `Task` are implemented on top of a specific `Future`. They have considerable better throughput and and smaller memory footprint if compared to their `Future` counterparts. When compared to other libraries, `Arrow` tends to have better performance than other solutions, but `Task` is only slightly better. That happens because the other libraries are also well optimized.
+`Arrow` and `Task` are implemented on top of a specific `Future`. They have considerable better throughput and smaller memory footprint if compared to their `Future` counterparts. When compared to other libraries, `Arrow` tends to have better performance than other solutions, but `Task` is only slightly better. That happens because the other libraries are also well optimized.
 
 #### Scala Future x Arrows Stdlib
 
@@ -285,6 +247,44 @@ Sync benchmarks
 Throughput (ops/s) | Allocation rate (B/op)
 :-----------------:|:----------------------:
 ![](https://raw.githubusercontent.com/traneio/arrows/master/arrows-benchmark/results/sync-thrpt-others.png?raw=true) | ![](https://raw.githubusercontent.com/traneio/arrows/master/arrows-benchmark/results/sync-alloc-others.png?raw=true)
+
+## Migrating from `Future`
+
+Given that `Task` has an interface similar to `Future`, it's possible to use [Scalafix](https://scalacenter.github.io/scalafix) to do most of the migration. Suggested steps:
+
+#### 1. Install Scalafix
+
+See the [Scalafix documentation](https://scalacenter.github.io/scalafix/docs/users/installation) for all installation options. An easy way is adding the scalafix plugin to your sbt configuration:
+
+```sh
+echo -e '\n\n addSbtPlugin("ch.epfl.scala" % "sbt-scalafix" % "0.5.10")' >> project/plugins.sbt
+```
+
+#### 2. Run a symbol rewrite from `Future` to `Task`
+
+```sh
+# for the Twitter Future
+sbt -J-XX:MaxMetaspaceSize=512m 'scalafixCli --rules replace:com.twitter.util.Future/arrows.twitter.Task
+
+# for the Scala Future
+sbt -J-XX:MaxMetaspaceSize=512m 'scalafixCli --rules replace:scala.concurrent.Future/arrows.stdlib.Task
+```
+
+The metaspace option is important to run Scalafix since SBT's default is too low.
+
+#### 3. Review changes
+
+Look for places where the change from strict to lazy might change the behavior. See the ["Using `Task`"](#using-task) section to understand the difference.
+
+At this point, it's reasonable to pause the migration and test the system to find potential issues with the migration.
+
+#### 4. Fix deprecation warnings
+
+There are deprecated implicit conversions from/to `Arrow`/`Future`. They were introduced to make the migration easier. Fix the deprecation warnings by calling the conversion methods directly and making sure that `Future`s are created within the `Task` execution, not outside.
+
+#### 5. Identify arrows
+
+As an additional step for even better performance, identify methods that can become `Arrow`s and convert them.
 
 ## Maintainers
 
