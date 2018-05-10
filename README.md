@@ -141,7 +141,7 @@ For best performance, keep arrows as `val`s in a scope that allows reuse
 Even though `Task` is similar to `Future`, it has a different execution mechanism. `Future`s are strict and start to execute once created. `Task` only describes a computation that will eventually execute when executed:
 
 ```scala
-val f = Future.value(1).map(println) // prints 1 immediatelly
+val f = Future.value(1).map(println) // prints 1 immediately
 val t = Task.value(1).map(println) // doesn't print anything during Task creation
 t.run // prints 1
 ```
