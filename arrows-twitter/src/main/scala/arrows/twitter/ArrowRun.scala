@@ -31,9 +31,8 @@ private[arrows] final object ArrowRun {
 
   final class Sync[+T](
     private[this] final var _success: Boolean,
-    private[this] final var curr:     Any
-  )
-    extends Result[T] {
+    private[this] final var curr: Any)
+      extends Result[T] {
 
     final def success = _success
 
@@ -73,12 +72,12 @@ private[arrows] final object ArrowRun {
   }
 
   final class Async[T](
-    private[this] final var fut: Future[T]
-  )
-    extends Result[T] with (Try[T] => Future[T]) {
+    private[this] final var fut: Future[T])
+      extends Result[T] with (Try[T] => Future[T]) {
 
     private[this] final var stack = new Array[Transform[Any, Any, Any]](10)
     private[this] final var pos = 0
+    private[this] final var simplified = false
 
     override final def toFuture = {
       val r = simplify
@@ -106,15 +105,20 @@ private[arrows] final object ArrowRun {
       runCont(t).toFuture
 
     override final def simplify =
-      fut.poll match {
-        case r: Some[_] =>
-          runCont(r.get)
-        case _ =>
-          fut = fut.transform(this)
-          this
-      }
+      if (simplified)
+        this
+      else
+        fut.poll match {
+          case r: Some[_] =>
+            runCont(r.get)
+          case _ =>
+            fut = fut.transform(this)
+            simplified = true
+            this
+        }
 
     override final def cont[B >: T, U](a: Transform[_, B, U], depth: Int) = {
+      require(!simplified)
       if (pos == stack.length)
         stack = Arrays.copyOf(stack, pos + pos / 2)
       stack(pos) = a.asInstanceOf[Transform[Any, Any, Any]]

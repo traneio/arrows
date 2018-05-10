@@ -12,6 +12,7 @@ import com.twitter.util.TimeoutException
 import com.twitter.util.Stopwatch
 import com.twitter.util.JavaTimer
 import language.postfixOps
+import com.twitter.util.Promise
 
 class TaskSpec extends Spec {
 
@@ -132,6 +133,24 @@ class TaskSpec extends Spec {
       val a2 = Task.value(2)
       val a = Task.collect(List(a1, a2))
       Await.result(a.run).toList mustEqual List(1, 2)
+    }
+    "async" in {
+      val p1 = Promise[Int]()
+      val p2 = Promise[Int]()
+      val t1 = Task.async(p1)
+      val t2 = Task.async(p2)
+      val f = Task.collect(List(t1, t2)).run
+      p1.setValue(1)
+      p2.setValue(2)
+      Await.result(f).toList mustEqual List(1, 2)
+    }
+    "mixed" in {
+      val p1 = Promise[Int]()
+      val t1 = Task.async(p1)
+      val t2 = Task.value(2)
+      val f = Task.collect(List(t1, t2)).run
+      p1.setValue(1)
+      Await.result(f).toList mustEqual List(1, 2)
     }
   }
 
