@@ -22,6 +22,14 @@ class TaskSpec extends Spec {
   def eval[T](t: Task[T]) = Await.result(t.run)
   def evalTry[T](t: Task[T]) = Try(eval(t))
 
+  "memoize" in {
+    var calls = 0
+    val t = Task(calls += 1).memoize
+    eval(t)
+    eval(t)
+    calls mustEqual 1
+  }
+  
   "default timeout" in {
     Task.DEFAULT_TIMEOUT mustEqual Duration.Top
   }

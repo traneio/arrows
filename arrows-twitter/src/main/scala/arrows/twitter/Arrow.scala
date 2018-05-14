@@ -3,6 +3,7 @@ package arrows.twitter
 import com.twitter.util._
 import ArrowRun.Sync
 import ArrowRun._
+import java.util.concurrent.atomic.AtomicReference
 
 /**
  *  An `Arrow` represents a computation that can be reused by multiple executions.
@@ -89,6 +90,24 @@ abstract class Arrow[-T, +U] extends (T => Task[U]) {
   final def run[V <: T](implicit ev: V => Unit): Future[U] =
     ArrowRun((), this.cast)
 
+  /**
+   * Memoizes a Task
+   */
+  final def memoize[V <: T](implicit ev: V => Unit): Task[U] = {
+    val ref = new AtomicReference[Task[U]]
+    Task.Unit.flatMap { _ =>
+      val curr = ref.get
+      if(curr != null)
+        curr
+      else
+        this.asInstanceOf[Task[U]].flatMap { result =>
+          val t = Task.value(result)
+          ref.compareAndSet(null, t)
+          t
+        }
+    }
+  }
+    
   /**
    * If this, the original computation, succeeds, run `f` on the result.
    *

@@ -152,7 +152,7 @@ private[arrows] final object ArrowImpl {
         }
       }
   }
-
+  
   trait Wrap[T, U] extends Arrow[T, U] {
     override final def runSync[B <: T](r: Sync[B], depth: Int): Result[U] =
       Async(r, wrap(arrow.runSync(r, 0).toFuture))
