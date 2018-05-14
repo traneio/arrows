@@ -97,7 +97,7 @@ abstract class Arrow[-T, +U] extends (T => Task[U]) {
     val ref = new AtomicReference[Task[U]]
     Task.Unit.flatMap { _ =>
       val curr = ref.get
-      if(curr != null)
+      if (curr != null)
         curr
       else
         this.asInstanceOf[Task[U]].flatMap { result =>
@@ -107,7 +107,7 @@ abstract class Arrow[-T, +U] extends (T => Task[U]) {
         }
     }
   }
-    
+
   /**
    * If this, the original computation, succeeds, run `f` on the result.
    *

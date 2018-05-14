@@ -29,7 +29,7 @@ class TaskSpec extends Spec {
     eval(t)
     calls mustEqual 1
   }
-  
+
   "default timeout" in {
     Task.DEFAULT_TIMEOUT mustEqual Duration.Top
   }

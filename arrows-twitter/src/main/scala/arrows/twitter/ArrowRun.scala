@@ -31,8 +31,9 @@ private[arrows] final object ArrowRun {
 
   final class Sync[+T](
     private[this] final var _success: Boolean,
-    private[this] final var curr: Any)
-      extends Result[T] {
+    private[this] final var curr:     Any
+  )
+    extends Result[T] {
 
     final def success = _success
 
@@ -72,8 +73,9 @@ private[arrows] final object ArrowRun {
   }
 
   final class Async[T](
-    private[this] final var fut: Future[T])
-      extends Result[T] with (Try[T] => Future[T]) {
+    private[this] final var fut: Future[T]
+  )
+    extends Result[T] with (Try[T] => Future[T]) {
 
     private[this] final var stack = new Array[Transform[Any, Any, Any]](10)
     private[this] final var pos = 0
