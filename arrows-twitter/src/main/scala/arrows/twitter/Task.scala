@@ -59,11 +59,11 @@ final object Task {
     exception(new NotImplementedError("an implementation is missing"))
 
   /**
-   * Creates a `Task` from a `Task`. This method takes a
-   * by-name parameter so the `Task` creation can happen
+   * Creates a `Task` from a `Future`. This method takes a
+   * by-name parameter so the `Future` creation can happen
    * lazily during execution.
    *
-   * Avoid creating the `Task` eagerly since it won't
+   * Avoid creating the `Future` eagerly since it won't
    * defer side effects.
    *
    * {{{
