@@ -14,7 +14,7 @@ This library provides `Arrow` and `Task` implementations in two flavors:
 
 ```
 libraryDependencies ++= Seq(
-  "io.trane" %% "arrows-stdlib" % "0.1.19"
+  "io.trane" %% "arrows-stdlib" % "0.1.20"
 )
 ```
 
@@ -22,7 +22,7 @@ libraryDependencies ++= Seq(
 
 ```
 libraryDependencies ++= Seq(
-  "io.trane" %% "arrows-twitter" % "0.1.19"
+  "io.trane" %% "arrows-twitter" % "0.1.20"
 )
 ```
 
