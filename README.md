@@ -289,6 +289,7 @@ As an additional step for even better performance, identify methods that can bec
 ## Maintainers
 
 - @fwbrasil (creator)
+- @vkostyukov
 - you? :)
 
 ## Code of Conduct
