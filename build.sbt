@@ -25,12 +25,17 @@ lazy val `arrows` =
       `arrows-stdlib-jvm`, 
       `arrows-stdlib-js`,
       `arrows-twitter`,
+      `arrows-stdlib-cats-jvm`,
+      `arrows-stdlib-cats-js`,
       `arrows-benchmark`
     )
     .dependsOn(
       `arrows-stdlib-jvm`, 
       `arrows-stdlib-js`,
       `arrows-twitter`,
+      `arrows-twitter`,
+      `arrows-stdlib-cats-jvm`,
+      `arrows-stdlib-cats-js`,
       `arrows-benchmark`
     )
 
@@ -49,6 +54,29 @@ lazy val `arrows-stdlib` =
 
 lazy val `arrows-stdlib-jvm` = `arrows-stdlib`.jvm
 lazy val `arrows-stdlib-js` = `arrows-stdlib`.js.settings(test := {})
+
+lazy val `arrows-stdlib-cats` =
+  crossProject.crossType(superPure)
+  .settings(commonSettings)
+  .settings(
+    crossScalaVersions := Seq("2.12.5"),
+    name := "arrows-stdlib-cats",
+    libraryDependencies ++= List(
+      "org.typelevel" %%% "cats-effect" % "1.0.0-RC3",
+      "org.typelevel" %%% "cats-effect-laws" % "1.0.0-RC3",
+      "org.typelevel" %%% "cats-mtl-core" % "0.2.3",
+      "org.typelevel" %%% "cats-mtl-laws" % "0.2.3",
+      compilerPlugin("org.spire-math" %%% "kind-projector" % "0.9.7"),
+      "org.typelevel" %%% "cats-testkit" % "1.2.0" % "test",
+    ),
+    scoverage.ScoverageKeys.coverageMinimum := 60,
+    scoverage.ScoverageKeys.coverageFailOnMinimum := false)
+  .jsSettings(
+    coverageExcludedPackages := ".*"
+  ).dependsOn(`arrows-stdlib`)
+
+lazy val `arrows-stdlib-cats-jvm` = `arrows-stdlib-cats`.jvm
+lazy val `arrows-stdlib-cats-js` = `arrows-stdlib-cats`.js.settings(test := {})
 
 lazy val `arrows-twitter` = project
   .settings(commonSettings)
