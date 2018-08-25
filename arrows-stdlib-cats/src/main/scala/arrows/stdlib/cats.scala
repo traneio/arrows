@@ -1,12 +1,12 @@
 package arrows.stdlib
 
 import cats.{ Applicative, StackSafeMonad }
-import cats.effect.{ Async, ExitCase }
+import cats.effect._
 import cats.arrow.ArrowChoice
 import cats.kernel.{ Monoid, Semigroup }
 import cats.mtl.ApplicativeAsk
 
-import scala.concurrent.Promise
+import scala.concurrent.{ ExecutionContext, Promise }
 import scala.util.control.NonFatal
 import scala.util.{ Failure, Success }
 
@@ -14,51 +14,9 @@ object Cats extends ArrowInstances
 
 sealed abstract class ArrowInstances extends ArrowInstances1 {
 
-  implicit def catsMonadForArrow[E]: Async[Arrow[E, ?]] = new Async[Arrow[E, ?]] with StackSafeMonad[Arrow[E, ?]] {
-
-    def flatMap[A, B](fa: Arrow[E, A])(f: A => Arrow[E, B]): Arrow[E, B] =
-      Arrow[E].flatMap(e => fa(e).flatMap(a => f(a)(e)))
-
-    def raiseError[A](e: Throwable): Arrow[E, A] = Arrow.failed[A](e)
-
-    def handleErrorWith[A](fa: Arrow[E, A])(f: Throwable => Arrow[E, A]): Arrow[E, A] =
-      Arrow[E].flatMap(e => fa.recoverWith { case t: Throwable => f(t)(e) }(e))
-
-    def pure[A](x: A): Arrow[E, A] = Arrow.successful(x)
-
-    def suspend[A](thunk: => Arrow[E, A]): Arrow[E, A] =
-      Arrow[E].flatMap(e => try { thunk(e) } catch { case NonFatal(t) => Arrow.failed[A](t)(e) })
-
-    override def delay[A](thunk: => A): Arrow[E, A] =
-      Arrow[E].flatMap(e => try { Arrow.successful(thunk) } catch { case NonFatal(t) => Arrow.failed[A](t)(e) })
-
-    def bracketCase[A, B](acquire: Arrow[E, A])(use: A => Arrow[E, B])(release: (A, ExitCase[Throwable]) => Arrow[E, Unit]): Arrow[E, B] = Arrow[E].flatMap(e =>
-      acquire.flatMap(a => use(a).transformWith {
-        case Success(b) => release(a, ExitCase.complete)(e).map(_ => b)
-        case Failure(t) => release(a, ExitCase.error(t))(e).flatMap(_ => Task.failed[B](t))
-      }(e))(e))
-
-    def async[A](k: (Either[Throwable, A] => Unit) => Unit): Arrow[E, A] = Arrow[E].flatMap { _ =>
-      val promise = Promise[A]
-
-      k {
-        case Left(t)  => promise.failure(t)
-        case Right(a) => promise.success(a)
-      }
-
-      Task.async(promise.future)
-    }
-
-    def asyncF[A](k: (Either[Throwable, A] => Unit) => Arrow[E, Unit]): Arrow[E, A] = Arrow[E].flatMap { e =>
-      val promise = Promise[A]
-
-      k {
-        case Left(t)  => promise.failure(t)
-        case Right(a) => promise.success(a)
-      }.flatMap(_ => Task.async(promise.future))(e)
-    }
-
-    override def map[A, B](fa: Arrow[E, A])(f: A => B): Arrow[E, B] = fa.map(f)
+  implicit def catsEffectForTask(implicit ec: ExecutionContext): Effect[Task] = new ArrowAsync[Unit] with Effect[Task] {
+    def runAsync[A](fa: Task[A])(cb: Either[Throwable, A] => IO[Unit]): SyncIO[Unit] =
+      SyncIO { fa.run(())(ec); () }
   }
 
   implicit val catsArrowChoiceForArrow: ArrowChoice[Arrow] = new ArrowChoice[Arrow] {
@@ -77,7 +35,7 @@ sealed abstract class ArrowInstances extends ArrowInstances1 {
   }
 
   implicit def catsApplicativeAskForArrow[E]: ApplicativeAsk[Arrow[E, ?], E] = new ApplicativeAsk[Arrow[E, ?], E] {
-    val applicative: Applicative[Arrow[E, ?]] = catsMonadForArrow[E]
+    val applicative: Applicative[Arrow[E, ?]] = catsAsyncForArrow[E]
 
     def ask: Arrow[E, E] = Arrow[E]
 
@@ -94,9 +52,58 @@ sealed abstract class ArrowInstances extends ArrowInstances1 {
 }
 
 sealed abstract class ArrowInstances1 {
+
+  implicit def catsAsyncForArrow[E]: Async[Arrow[E, ?]] = new ArrowAsync[E] {}
+
   implicit def catsSemigroupForArrow[A, B](implicit B0: Semigroup[B]): Semigroup[Arrow[A, B]] = new ArrowSemigroup[A, B] {
     implicit def B: Semigroup[B] = B0
   }
+}
+
+trait ArrowAsync[E] extends StackSafeMonad[Arrow[E, ?]] with Async[Arrow[E, ?]] {
+  def flatMap[A, B](fa: Arrow[E, A])(f: A => Arrow[E, B]): Arrow[E, B] =
+    Arrow[E].flatMap(e => fa(e).flatMap(a => f(a)(e)))
+
+  def raiseError[A](e: Throwable): Arrow[E, A] = Arrow.failed[A](e)
+
+  def handleErrorWith[A](fa: Arrow[E, A])(f: Throwable => Arrow[E, A]): Arrow[E, A] =
+    Arrow[E].flatMap(e => fa.recoverWith { case t: Throwable => f(t)(e) }(e))
+
+  def pure[A](x: A): Arrow[E, A] = Arrow.successful(x)
+
+  def suspend[A](thunk: => Arrow[E, A]): Arrow[E, A] =
+    Arrow[E].flatMap(e => try { thunk(e) } catch { case NonFatal(t) => Arrow.failed[A](t)(e) })
+
+  override def delay[A](thunk: => A): Arrow[E, A] =
+    Arrow[E].flatMap(e => try { Arrow.successful(thunk) } catch { case NonFatal(t) => Arrow.failed[A](t)(e) })
+
+  def bracketCase[A, B](acquire: Arrow[E, A])(use: A => Arrow[E, B])(release: (A, ExitCase[Throwable]) => Arrow[E, Unit]): Arrow[E, B] = Arrow[E].flatMap(e =>
+    acquire.flatMap(a => use(a).transformWith {
+      case Success(b) => release(a, ExitCase.complete)(e).map(_ => b)
+      case Failure(t) => release(a, ExitCase.error(t))(e).flatMap(_ => Task.failed[B](t))
+    }(e))(e))
+
+  def async[A](k: (Either[Throwable, A] => Unit) => Unit): Arrow[E, A] = Arrow[E].flatMap { _ =>
+    val promise = Promise[A]
+
+    k {
+      case Left(t)  => promise.failure(t)
+      case Right(a) => promise.success(a)
+    }
+
+    Task.async(promise.future)
+  }
+
+  def asyncF[A](k: (Either[Throwable, A] => Unit) => Arrow[E, Unit]): Arrow[E, A] = Arrow[E].flatMap { e =>
+    val promise = Promise[A]
+
+    k {
+      case Left(t)  => promise.failure(t)
+      case Right(a) => promise.success(a)
+    }.flatMap(_ => Task.async(promise.future))(e)
+  }
+
+  override def map[A, B](fa: Arrow[E, A])(f: A => B): Arrow[E, B] = fa.map(f)
 }
 
 trait ArrowSemigroup[A, B] extends Semigroup[Arrow[A, B]] {

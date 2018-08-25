@@ -66,7 +66,7 @@ lazy val `arrows-stdlib-cats` =
       "org.typelevel" %%% "cats-effect-laws" % "1.0.0-RC3",
       "org.typelevel" %%% "cats-mtl-core" % "0.2.3",
       "org.typelevel" %%% "cats-mtl-laws" % "0.2.3",
-      compilerPlugin("org.spire-math" %%% "kind-projector" % "0.9.7"),
+      compilerPlugin("org.spire-math" %% "kind-projector" % "0.9.7"),
       "org.typelevel" %%% "cats-testkit" % "1.2.0" % "test",
     ),
     scoverage.ScoverageKeys.coverageMinimum := 60,
