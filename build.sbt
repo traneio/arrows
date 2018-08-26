@@ -59,14 +59,14 @@ lazy val `arrows-stdlib-cats` =
   crossProject.crossType(superPure)
   .settings(commonSettings)
   .settings(
-    crossScalaVersions := Seq("2.12.5"),
+    crossScalaVersions := Seq("2.12.6"),
     name := "arrows-stdlib-cats",
     libraryDependencies ++= List(
-      "org.typelevel" %%% "cats-effect" % "1.0.0-RC3",
-      "org.typelevel" %%% "cats-effect-laws" % "1.0.0-RC3",
-      "org.typelevel" %%% "cats-mtl-core" % "0.2.3",
-      "org.typelevel" %%% "cats-mtl-laws" % "0.2.3",
       compilerPlugin("org.spire-math" %% "kind-projector" % "0.9.7"),
+      "org.typelevel" %%% "cats-effect" % "1.0.0-RC3",
+      "org.typelevel" %%% "cats-mtl-core" % "0.2.3",
+      "org.typelevel" %%% "cats-effect-laws" % "1.0.0-RC3" % "test",
+      "org.typelevel" %%% "cats-mtl-laws" % "0.2.3" % "test",
       "org.typelevel" %%% "cats-testkit" % "1.2.0" % "test",
     ),
     scoverage.ScoverageKeys.coverageMinimum := 60,
