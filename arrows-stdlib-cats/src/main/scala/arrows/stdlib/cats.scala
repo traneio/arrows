@@ -14,16 +14,29 @@ object Cats extends ArrowInstances
 
 sealed abstract class ArrowInstances extends ArrowInstances1 {
 
+  private final object ToLeft {
+    private final val instance: Any => Left[Any, Nothing] = Left(_)
+    def apply[T] = instance.asInstanceOf[T => Left[T, Nothing]]
+  }
+
+  private final object ToRight {
+    private final val instance: Any => Right[Nothing, Any] = Right(_)
+    def apply[T] = instance.asInstanceOf[T => Right[Nothing, T]]
+  }
+
   implicit def catsEffectForTask(implicit ec: ExecutionContext): Effect[Task] = new ArrowAsync[Unit] with Effect[Task] {
     def runAsync[A](fa: Task[A])(cb: Either[Throwable, A] => IO[Unit]): SyncIO[Unit] =
-      SyncIO { fa.run(())(ec); () }
+      SyncIO(fa.run(())(ec).onComplete(t => cb(t.toEither).unsafeRunAsync(_ => ())))
+
+    override def flatMap[A, B](fa: Task[A])(f: A => Task[B]): Task[B] =
+      fa.flatMap(f)
   }
 
   implicit val catsArrowChoiceForArrow: ArrowChoice[Arrow] = new ArrowChoice[Arrow] {
     def choose[A, B, C, D](f: Arrow[A, C])(g: Arrow[B, D]): Arrow[Either[A, B], Either[C, D]] =
-      Arrow[Either[A, B]].flatMap {
-        case Left(a)  => f(a).map(Left(_))
-        case Right(b) => g(b).map(Right(_))
+      Arrow[Either[A, B]].flatMap { eab =>
+        if (eab.isLeft) f(eab.left.get).map(ToLeft[C])
+        else g(eab.right.get).map(ToRight[D])
       }
 
     def lift[A, B](f: A => B): Arrow[A, B] = Arrow[A].map(f)
@@ -75,7 +88,7 @@ trait ArrowAsync[E] extends StackSafeMonad[Arrow[E, ?]] with Async[Arrow[E, ?]] 
     Arrow[E].flatMap(e => try { thunk(e) } catch { case NonFatal(t) => Arrow.failed[A](t)(e) })
 
   override def delay[A](thunk: => A): Arrow[E, A] =
-    Arrow[E].flatMap(e => try { Arrow.successful(thunk) } catch { case NonFatal(t) => Arrow.failed[A](t)(e) })
+    Arrow[E].flatMap(e => Arrow.successful(thunk))
 
   def bracketCase[A, B](acquire: Arrow[E, A])(use: A => Arrow[E, B])(release: (A, ExitCase[Throwable]) => Arrow[E, Unit]): Arrow[E, B] = Arrow[E].flatMap(e =>
     acquire.flatMap(a => use(a).transformWith {
