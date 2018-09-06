@@ -63,11 +63,11 @@ lazy val `arrows-stdlib-cats` =
     name := "arrows-stdlib-cats",
     libraryDependencies ++= List(
       compilerPlugin("org.spire-math" %% "kind-projector" % "0.9.7"),
-      "org.typelevel" %%% "cats-effect" % "1.0.0-RC3",
-      "org.typelevel" %%% "cats-mtl-core" % "0.2.3",
-      "org.typelevel" %%% "cats-effect-laws" % "1.0.0-RC3" % "test",
-      "org.typelevel" %%% "cats-mtl-laws" % "0.2.3" % "test",
-      "org.typelevel" %%% "cats-testkit" % "1.2.0" % "test",
+      "org.typelevel" %%% "cats-effect" % "1.0.0",
+      "org.typelevel" %%% "cats-mtl-core" % "0.3.0",
+      "org.typelevel" %%% "cats-effect-laws" % "1.0.0" % "test",
+      "org.typelevel" %%% "cats-mtl-laws" % "0.3.0" % "test",
+      "org.typelevel" %%% "cats-testkit" % "1.3.1" % "test",
     ),
     scoverage.ScoverageKeys.coverageMinimum := 60,
     scoverage.ScoverageKeys.coverageFailOnMinimum := false)

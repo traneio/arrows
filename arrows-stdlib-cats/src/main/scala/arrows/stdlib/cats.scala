@@ -44,15 +44,17 @@ sealed abstract class ArrowInstances extends ArrowInstances1 {
 
     def compose[A, B, C](f: Arrow[B, C], g: Arrow[A, B]): Arrow[A, C] = g.andThen(f)
   }
+  private final val catsApplicativeAskForArrowInstance: ApplicativeAsk[Arrow[Any, ?], Any] =
+    new ApplicativeAsk[Arrow[Any, ?], Any] {
+      val applicative: Applicative[Arrow[Any, ?]] = catsAsyncForArrow[Any]
 
-  implicit def catsApplicativeAskForArrow[E]: ApplicativeAsk[Arrow[E, ?], E] = new ApplicativeAsk[Arrow[E, ?], E] {
-    val applicative: Applicative[Arrow[E, ?]] = catsAsyncForArrow[E]
+      def ask: Arrow[Any, Any] = Arrow[Any]
 
-    def ask: Arrow[E, E] = Arrow[E]
+      def reader[A](f: Any => A): Arrow[Any, A] = ask.map(f)
+    }
 
-    def reader[A](f: E => A): Arrow[E, A] = ask.map(f)
-
-  }
+  implicit def catsApplicativeAskForArrow[E] =
+    catsApplicativeAskForArrowInstance.asInstanceOf[ApplicativeAsk[Arrow[E, ?], E]]
 
   implicit def catsMonoidForArrow[A, B](implicit B0: Monoid[B]): Monoid[Arrow[A, B]] =
     new Monoid[Arrow[A, B]] with ArrowSemigroup[A, B] {
