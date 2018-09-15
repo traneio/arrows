@@ -55,7 +55,7 @@ lazy val `arrows-twitter` = project
   .settings(
     crossScalaVersions := Seq("2.11.12", "2.12.5"),
     libraryDependencies ++= Seq(
-      "com.twitter" %% "util-core" % "18.8.0"
+      "com.twitter" %% "util-core" % "18.9.0"
     ),
     scoverage.ScoverageKeys.coverageMinimum := 60,
     scoverage.ScoverageKeys.coverageFailOnMinimum := false
